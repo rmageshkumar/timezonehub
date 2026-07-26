@@ -1,10 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
+function verifyCaptcha(token: string, answer: string): boolean {
+  if (!token || !answer) return false;
+
+  // Backward-compatible fallback: simple base64 token (generated client-side on API failure)
+  if (token.length < 20) {
+    try {
+      const expected = atob(token);
+      return expected === answer.trim();
+    } catch {
+      return false;
+    }
+  }
+
+  // HMAC-signed token
+  try {
+    const decoded = Buffer.from(token, "base64url").toString("utf-8");
+    const parts = decoded.split("|");
+    if (parts.length !== 4) return false;
+
+    const [, expectedAnswer, timestampStr, signature] = parts;
+
+    // Check expiry: 10 minutes
+    const timestamp = parseInt(timestampStr, 10);
+    if (Date.now() - timestamp > 10 * 60 * 1000) return false;
+
+    // Verify HMAC
+    const payload = parts.slice(0, 3).join("|");
+    const secret = process.env.AUTH_SECRET || "fallback-secret";
+    const expectedSig = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+
+    if (signature !== expectedSig) return false;
+
+    return answer.trim() === expectedAnswer;
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password, captchaToken, captchaAnswer } = await request.json();
+
+    // Validate captcha
+    if (!verifyCaptcha(captchaToken, captchaAnswer)) {
+      return NextResponse.json({ error: "Incorrect captcha answer. Please try again." }, { status: 400 });
+    }
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });

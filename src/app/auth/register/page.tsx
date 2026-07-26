@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Clock, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Clock, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight, Shield, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function RegisterPage() {
@@ -14,19 +14,52 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [captchaQuestion, setCaptchaQuestion] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(true);
   const router = useRouter();
+
+  const fetchCaptcha = useCallback(async () => {
+    setCaptchaLoading(true);
+    try {
+      const res = await fetch("/api/auth/captcha");
+      const data = await res.json();
+      setCaptchaQuestion(data.question);
+      setCaptchaToken(data.token);
+      setCaptchaAnswer("");
+    } catch {
+      // fallback captcha
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      setCaptchaQuestion(`What is ${a} + ${b}?`);
+      setCaptchaToken(btoa(`${a + b}`));
+      setCaptchaAnswer("");
+    }
+    setCaptchaLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchCaptcha();
+  }, [fetchCaptcha]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    if (!captchaAnswer.trim()) {
+      setError("Please answer the captcha");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Register
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, captchaToken, captchaAnswer }),
       });
 
       const data = await res.json();
@@ -34,6 +67,7 @@ export default function RegisterPage() {
       if (!res.ok) {
         setError(data.error || "Registration failed");
         toast.error(data.error || "Registration failed");
+        fetchCaptcha(); // refresh captcha on failure
         setLoading(false);
         return;
       }
@@ -109,6 +143,36 @@ export default function RegisterPage() {
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Captcha */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Security Check
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    value={captchaAnswer}
+                    onChange={(e) => setCaptchaAnswer(e.target.value)}
+                    className="input-field pl-10"
+                    placeholder={captchaLoading ? "Loading..." : captchaQuestion}
+                    autoComplete="off"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchCaptcha}
+                  disabled={captchaLoading}
+                  className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+                  title="Refresh captcha"
+                >
+                  <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
                 </button>
               </div>
             </div>
