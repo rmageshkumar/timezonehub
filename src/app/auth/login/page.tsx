@@ -24,7 +24,11 @@ export default function LoginPage() {
       const result = await signIn("credentials", { email, password, redirect: false });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        if (result.error === "EMAIL_NOT_VERIFIED" || result.error.includes("verify")) {
+          setError("Please verify your email before signing in. Check your inbox for the verification link.");
+        } else {
+          setError("Invalid email or password");
+        }
         toast.error("Login failed");
       } else {
         toast.success("Welcome back!");

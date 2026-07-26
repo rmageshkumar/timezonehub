@@ -66,6 +66,10 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Generate verification token (24-hour expiry)
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const user = await prisma.user.create({
       data: {
         name: name || email.split("@")[0],
@@ -73,6 +77,8 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         role: "user",
         status: "active",
+        verificationToken,
+        verificationTokenExpires,
       },
     });
 
@@ -85,9 +91,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Build verification URL
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.AUTH_URL || "http://localhost:3000";
+    const verifyUrl = `${baseUrl}/auth/verify-email?token=${verificationToken}`;
+
+    // Log verification link (in production, send via email)
+    console.log(`📧 Verification email for ${email}: ${verifyUrl}`);
+
     return NextResponse.json({
       success: true,
       user: { id: user.id, name: user.name, email: user.email },
+      verificationUrl: verifyUrl,
+      message: "Account created! Please check your email to verify your account.",
     });
   } catch (error) {
     console.error("Registration error:", error);

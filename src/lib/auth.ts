@@ -28,6 +28,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user || !user.password) return null;
         if (user.status !== "active") return null;
 
+        // Block login if email not verified (skip for admin accounts)
+        if (!user.emailVerified && user.role === "user") {
+          throw new Error("EMAIL_NOT_VERIFIED");
+        }
+
         const isValid = await bcrypt.compare(
           credentials.password as string,
           user.password

@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Clock, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight, Shield, RefreshCw } from "lucide-react";
+import { Clock, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight, Shield, RefreshCw, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function RegisterPage() {
@@ -14,6 +13,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [verificationUrl, setVerificationUrl] = useState("");
   const [captchaQuestion, setCaptchaQuestion] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
   const [captchaAnswer, setCaptchaAnswer] = useState("");
@@ -72,16 +72,10 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto-login after registration
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Account created but login failed. Please sign in.");
-        router.push("/auth/login");
+      // Show verification notice (email sending is logged on server)
+      if (data.verificationUrl) {
+        setVerificationUrl(data.verificationUrl);
+        toast.success("Account created! Please check your email to verify.");
       } else {
         toast.success("Welcome to TimezoneHub!");
         router.push("/dashboard");
@@ -114,6 +108,19 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {verificationUrl ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 p-3 mb-6 rounded-lg bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 text-sm">
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <span>Account created! A verification link has been generated.</span>
+              </div>
+              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 text-sm">
+                <p className="font-medium text-blue-700 dark:text-blue-300 mb-2">📧 Verification Link (dev mode):</p>
+                <a href={verificationUrl} className="text-blue-600 dark:text-blue-400 break-all hover:underline text-xs">{verificationUrl}</a>
+              </div>
+              <p className="text-xs text-slate-500">In production, this link would be sent via email.</p>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Full Name</label>
@@ -183,6 +190,7 @@ export default function RegisterPage() {
               {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
+          )}
 
           <p className="text-sm text-slate-500 text-center mt-6">
             Already have an account?{" "}

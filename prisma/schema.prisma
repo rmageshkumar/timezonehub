@@ -10,16 +10,18 @@ datasource db {
 
 // ==================== AUTH ====================
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  role          String    @default("user") // super_admin, admin, editor, moderator, analyst, user, premium
-  status        String    @default("active") // active, suspended, deleted
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                      String    @id @default(cuid())
+  name                    String?
+  email                   String    @unique
+  emailVerified           DateTime?
+  verificationToken       String?   @unique
+  verificationTokenExpires DateTime?
+  password                String?
+  image                   String?
+  role                    String    @default("user") // super_admin, admin, editor, moderator, analyst, user, premium
+  status                  String    @default("active") // active, suspended, deleted
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   accounts      Account[]
   sessions      Session[]
