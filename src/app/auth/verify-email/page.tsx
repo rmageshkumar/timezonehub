@@ -3,7 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { ClockHiveLogo } from "@/components/ClockHiveLogo";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -76,9 +77,7 @@ export default function VerifyEmailPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
       <div className="w-full max-w-md text-center">
         <Link href="/" className="inline-flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg">
-            <Clock className="w-6 h-6 text-white" />
-          </div>
+          <ClockHiveLogo className="w-12 h-12" />
           <span className="text-2xl font-bold gradient-text">ClockHive</span>
         </Link>
         <Suspense fallback={

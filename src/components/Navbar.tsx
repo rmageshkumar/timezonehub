@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Clock, Menu, Search, Sun, Moon, X, Globe, BarChart3, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play } from "lucide-react";
+import { ClockHiveLogo } from "@/components/ClockHiveLogo";
+import { Menu, Search, Sun, Moon, X, Globe, BarChart3, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play, Clock } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
+
   const [isOpen, setIsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -34,9 +36,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg group-hover:shadow-primary-500/25 transition-shadow">
-              <Clock className="w-5 h-5 text-white" />
-            </div>
+            <ClockHiveLogo className="w-9 h-9" />
             <span className="text-xl font-bold gradient-text">ClockHive</span>
           </Link>
 

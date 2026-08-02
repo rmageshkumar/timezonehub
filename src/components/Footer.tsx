@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Clock, Mail, Github, Twitter, Globe, Heart } from "lucide-react";
+import { ClockHiveLogo } from "@/components/ClockHiveLogo";
+import { Mail, Github, Twitter, Globe, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -9,9 +10,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-white" />
-              </div>
+              <ClockHiveLogo className="w-8 h-8" />
               <span className="font-bold text-lg gradient-text">ClockHive</span>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">

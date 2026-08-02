@@ -1,30 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Mail, User, MessageSquare, Send, CheckCircle } from "lucide-react";
+import { Mail, User, MessageSquare, Send, CheckCircle, Shield, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaQuestion, setCaptchaQuestion] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(true);
+
+  const fetchCaptcha = useCallback(async () => {
+    setCaptchaLoading(true);
+    try {
+      const res = await fetch("/api/auth/captcha");
+      const data = await res.json();
+      setCaptchaQuestion(data.question);
+      setCaptchaToken(data.token);
+      setCaptchaAnswer("");
+    } catch {
+      const a = Math.floor(Math.random() * 10) + 1;
+      const b = Math.floor(Math.random() * 10) + 1;
+      setCaptchaQuestion(`What is ${a} + ${b}?`);
+      setCaptchaToken(btoa(`${a + b}`));
+      setCaptchaAnswer("");
+    }
+    setCaptchaLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchCaptcha();
+  }, [fetchCaptcha]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaAnswer.trim()) {
+      toast.error("Please answer the security check");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, captchaToken, captchaAnswer }),
       });
       if (res.ok) {
         setSubmitted(true);
         toast.success("Message sent!");
       } else {
         toast.error("Failed to send message");
+        fetchCaptcha();
       }
     } catch {
       toast.error("An error occurred");
@@ -75,6 +106,34 @@ export default function ContactPage() {
                 <Send className="w-4 h-4" />
                 {loading ? "Sending..." : "Send Message"}
               </button>
+
+              {/* Captcha */}
+              <div className="pt-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Security Check</label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      required
+                      value={captchaAnswer}
+                      onChange={(e) => setCaptchaAnswer(e.target.value)}
+                      className="input-field pl-10"
+                      placeholder={captchaLoading ? "Loading..." : captchaQuestion}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchCaptcha}
+                    disabled={captchaLoading}
+                    className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+                    title="Refresh captcha"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
+              </div>
             </form>
           )}
         </div>

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Clock, Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight, Shield, RefreshCw, CheckCircle } from "lucide-react";
+import { ClockHiveLogo } from "@/components/ClockHiveLogo";
+import { Mail, Lock, User, AlertCircle, Eye, EyeOff, ArrowRight, Shield, RefreshCw, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function RegisterPage() {
@@ -92,9 +93,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg">
-            <Clock className="w-6 h-6 text-white" />
-          </div>
+          <ClockHiveLogo className="w-12 h-12" />
           <span className="text-2xl font-bold gradient-text">ClockHive</span>
         </Link>
 
