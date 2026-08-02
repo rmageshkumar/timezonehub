@@ -1,10 +1,9 @@
-import { prisma } from "@/lib/prisma";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
 
-  const staticPages = [
+  const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily" as const, priority: 1 },
     { url: `${baseUrl}/countries`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.9 },
     { url: `${baseUrl}/converter`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
@@ -17,46 +16,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
     { url: `${baseUrl}/auth/login`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
     { url: `${baseUrl}/auth/register`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
+    { url: `${baseUrl}/faq`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
     { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${baseUrl}/cookies`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
   ];
 
-  // Dynamic country pages
-  let countryPages: MetadataRoute.Sitemap = [];
+  // Lazy-load prisma so build doesn't fail if DB is unreachable
+  let dynamicPages: MetadataRoute.Sitemap = [];
   try {
-    const countries = await prisma.country.findMany({ where: { isActive: true } });
-    countryPages = countries.map((c) => ({
+    const { prisma } = await import("@/lib/prisma");
+
+    const countries = await prisma.country.findMany({ where: { isActive: true }, select: { code: true, updatedAt: true } });
+    dynamicPages.push(...countries.map((c) => ({
       url: `${baseUrl}/country/${c.code}`,
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
-    }));
-  } catch {}
+    })));
 
-  // Dynamic city pages
-  let cityPages: MetadataRoute.Sitemap = [];
-  try {
-    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 200 });
-    cityPages = cities.map((c) => ({
+    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 200, select: { id: true, updatedAt: true } });
+    dynamicPages.push(...cities.map((c) => ({
       url: `${baseUrl}/city/${c.id}`,
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,
-    }));
-  } catch {}
+    })));
 
-  // Blog posts
-  let blogPages: MetadataRoute.Sitemap = [];
-  try {
-    const posts = await prisma.blogPost.findMany({ where: { status: "published" } });
-    blogPages = posts.map((p) => ({
+    const posts = await prisma.blogPost.findMany({ where: { status: "published" }, select: { slug: true, updatedAt: true, publishedAt: true } });
+    dynamicPages.push(...posts.map((p) => ({
       url: `${baseUrl}/blog/${p.slug}`,
       lastModified: p.updatedAt || p.publishedAt || new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.6,
-    }));
-  } catch {}
+    })));
+  } catch {
+    // DB unreachable — return static pages only
+  }
 
-  return [...staticPages, ...countryPages, ...cityPages, ...blogPages];
+  return [...staticPages, ...dynamicPages];
 }
+
+export const dynamic = "force-dynamic";
