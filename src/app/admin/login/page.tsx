@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
             <Clock className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Admin Portal</h1>
-          <p className="text-sm text-slate-500 mt-1">TimezoneHub Management</p>
+          <p className="text-sm text-slate-500 mt-1">ClockHive Management</p>
         </div>
 
         {/* Login Form */}
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="input-field pl-10"
-                  placeholder="admin@timezonehub.com"
+                  placeholder="admin@clockhive.cc"
                 />
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function AdminLoginPage() {
           </form>
 
           <p className="text-xs text-slate-400 text-center mt-6">
-            Default: admin@timezonehub.com / admin123
+            Default: admin@clockhive.cc / admin123
           </p>
         </div>
       </div>

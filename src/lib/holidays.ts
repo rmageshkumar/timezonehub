@@ -1,5 +1,5 @@
 /**
- * Holiday data and checking utilities for TimezoneHub.
+ * Holiday data and checking utilities for ClockHive.
  * Includes major national/fixed-date holidays.
  * Floating holidays (Easter, Eid, Diwali, etc.) use approximate rules.
  */

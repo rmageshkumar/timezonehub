@@ -7,7 +7,7 @@ import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog - Timezone Tips & Guides | TimezoneHub",
+  title: "Blog - Timezone Tips & Guides | ClockHive",
   description: "Expert tips on timezone management, remote work, meeting scheduling, and global team coordination.",
 };
 

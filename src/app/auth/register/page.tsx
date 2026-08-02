@@ -77,7 +77,7 @@ export default function RegisterPage() {
         setVerificationUrl(data.verificationUrl);
         toast.success("Account created! Please check your email to verify.");
       } else {
-        toast.success("Welcome to TimezoneHub!");
+        toast.success("Welcome to ClockHive!");
         router.push("/dashboard");
         router.refresh();
       }
@@ -95,7 +95,7 @@ export default function RegisterPage() {
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center shadow-lg">
             <Clock className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold gradient-text">TimezoneHub</span>
+          <span className="text-2xl font-bold gradient-text">ClockHive</span>
         </Link>
 
         <div className="glass rounded-2xl p-8">

@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Scrum Poker - Agile Planning Made Easy | TimezoneHub",
+  title: "Scrum Poker - Agile Planning Made Easy | ClockHive",
   description: "Free online Scrum Poker / Planning Poker tool. Create rooms, invite your team, and estimate stories with Fibonacci cards.",
 };
 

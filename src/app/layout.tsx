@@ -7,8 +7,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "TimezoneHub - The Most Beautiful Timezone Management Platform",
-    template: "%s | TimezoneHub",
+    default: "ClockHive - The Most Beautiful Timezone Management Platform",
+    template: "%s | ClockHive",
   },
   description:
     "Manage time zones for remote teams, developers, travelers, and global businesses. Compare cities, plan meetings, and track world time.",
@@ -19,13 +19,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "TimezoneHub",
-    title: "TimezoneHub - Beautiful Timezone Management",
+    siteName: "ClockHive",
+    title: "ClockHive - Beautiful Timezone Management",
     description: "The most beautiful timezone management platform for remote teams and global businesses.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TimezoneHub",
+    title: "ClockHive",
     description: "Beautiful timezone management for everyone.",
   },
   robots: { index: true, follow: true },

@@ -21,11 +21,11 @@ async function main() {
   // ==================== ADMIN USER ====================
   const adminPassword = await bcrypt.hash("admin123", 12);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@timezonehub.com" },
+    where: { email: "admin@clockhive.cc" },
     update: {},
     create: {
       name: "Super Admin",
-      email: "admin@timezonehub.com",
+      email: "admin@clockhive.cc",
       password: adminPassword,
       role: "super_admin",
       status: "active",
@@ -36,11 +36,11 @@ async function main() {
   // ==================== DEMO USER ====================
   const userPassword = await bcrypt.hash("demo123", 12);
   await prisma.user.upsert({
-    where: { email: "demo@timezonehub.com" },
+    where: { email: "demo@clockhive.cc" },
     update: {},
     create: {
       name: "Demo User",
-      email: "demo@timezonehub.com",
+      email: "demo@clockhive.cc",
       password: userPassword,
       role: "user",
       status: "active",
@@ -786,7 +786,7 @@ async function main() {
 
   // ==================== SETTINGS ====================
   const defaultSettings = [
-    { key: "app_name", value: '"TimezoneHub"', group: "general" },
+    { key: "app_name", value: '"ClockHive"', group: "general" },
     { key: "app_description", value: '"The most beautiful timezone management platform"', group: "general" },
     { key: "timezone", value: '"UTC"', group: "general" },
     { key: "language", value: '"en"', group: "general" },
@@ -867,7 +867,7 @@ async function main() {
       status: "published",
       publishedAt: new Date(),
       categoryId: (await prisma.blogCategory.findUnique({ where: { slug: "timezone-tips" } }))!.id,
-      seoTitle: "Why Remote Teams Need Timezone Management | TimezoneHub",
+      seoTitle: "Why Remote Teams Need Timezone Management | ClockHive",
       seoDescription: "Learn why timezone management is essential for remote teams and how to pick the right tool.",
     },
   });
@@ -886,8 +886,8 @@ async function main() {
   });
 
   console.log("\n🎉 Seeding complete!");
-  console.log("📧 Admin login: admin@timezonehub.com / admin123");
-  console.log("📧 Demo login:  demo@timezonehub.com / demo123");
+  console.log("📧 Admin login: admin@clockhive.cc / admin123");
+  console.log("📧 Demo login:  demo@clockhive.cc / demo123");
 }
 
 main()

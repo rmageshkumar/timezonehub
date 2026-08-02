@@ -6,7 +6,7 @@ import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Meeting Scheduler - Find Best Times Across Timezones | TimezoneHub",
+  title: "AI Meeting Scheduler - Find Best Times Across Timezones | ClockHive",
   description: "AI-powered meeting scheduler. Add cities and let AI find the perfect overlapping time, analyzing business hours, lunch breaks, and weekends.",
 };
 

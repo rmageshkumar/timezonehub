@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${country.name} Time - Current Time in ${country.name}`,
     description: `Current time in ${country.name} (${country.code}). View all ${country.timezoneCount} time zones in ${country.name}.`,
     openGraph: {
-      title: `${country.name} Time - TimezoneHub`,
+      title: `${country.name} Time - ClockHive`,
       description: `Check the current time in ${country.name}`,
     },
   };

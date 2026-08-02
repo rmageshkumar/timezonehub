@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================================
-# TimezoneHub Deployment Script for Hostinger Shared Hosting
+# ClockHive Deployment Script for Hostinger Shared Hosting
 # ============================================================
 # Run: bash deploy-hostinger.sh
 
 set -e
 
-echo "🚀 Building TimezoneHub for production..."
+echo "🚀 Building ClockHive for production..."
 echo ""
 
 # 1. Install dependencies
@@ -77,11 +77,11 @@ echo ""
 echo "=== HOW TO DEPLOY TO HOSTINGER ==="
 echo ""
 echo "1. Compress the deploy-package folder:"
-echo "   zip -r timezonehub.zip deploy-package/"
+echo "   zip -r clockhive.zip deploy-package/"
 echo ""
 echo "2. Upload to Hostinger via FTP or File Manager"
 echo "   - Go to cPanel → File Manager → public_html (or a subdomain folder)"
-echo "   - Upload and extract timezonehub.zip"
+echo "   - Upload and extract clockhive.zip"
 echo ""
 echo "3. In Hostinger cPanel:"
 echo "   - Go to 'Setup Node.js App'"

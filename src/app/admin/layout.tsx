@@ -73,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="w-7 h-7 rounded bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
                 <Clock className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-bold text-sm gradient-text">TimezoneHub Admin</span>
+              <span className="font-bold text-sm gradient-text">ClockHive Admin</span>
             </Link>
           </div>
           <div className="flex items-center gap-2">

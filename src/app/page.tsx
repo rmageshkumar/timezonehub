@@ -171,7 +171,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-              Why TimezoneHub?
+              Why ClockHive?
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mt-2">
               Built for modern distributed teams

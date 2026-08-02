@@ -1,7 +1,7 @@
 {
-  "name": "timezone-platform",
+  "name": "clockhive",
   "version": "1.0.0",
-  "description": "The most beautiful timezone management platform for remote teams, developers, travelers, and global businesses.",
+  "description": "ClockHive - Beautiful timezone management platform for remote teams, developers, travelers, and global businesses.",
   "private": true,
   "browserslist": {
     "production": [

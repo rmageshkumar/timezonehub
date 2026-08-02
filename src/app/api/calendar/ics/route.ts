@@ -29,12 +29,12 @@ export async function GET(request: NextRequest) {
   };
 
   const now = formatICSDate(new Date());
-  const uid = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}@timezonehub.com`;
+  const uid = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}@clockhive.cc`;
 
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//TimezoneHub//Timezone Management Platform//EN",
+    "PRODID:-//ClockHive//Timezone Management Platform//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -45,8 +45,8 @@ export async function GET(request: NextRequest) {
     `SUMMARY:${escapeICS(title)}`,
     `DESCRIPTION:${escapeICS(description)}`,
     location ? `LOCATION:${escapeICS(location)}` : "",
-    `URL:https://timezonehub.com`,
-    `ORGANIZER;CN=TimezoneHub:mailto:hello@timezonehub.com`,
+    `URL:https://clockhive.cc`,
+    `ORGANIZER;CN=ClockHive:mailto:hello@clockhive.cc`,
     "END:VEVENT",
     "END:VCALENDAR",
   ]

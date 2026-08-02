@@ -12,7 +12,7 @@ export function Footer() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-lg gradient-text">TimezoneHub</span>
+              <span className="font-bold text-lg gradient-text">ClockHive</span>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
               The most beautiful timezone management platform for remote teams, developers, and global businesses.
@@ -60,7 +60,7 @@ export function Footer() {
 
         <div className="border-t border-slate-200 dark:border-slate-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            &copy; {new Date().getFullYear()} TimezoneHub. All rights reserved.
+            &copy; {new Date().getFullYear()} ClockHive. All rights reserved.
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
             Made with <Heart className="w-3 h-3 text-red-500" /> for global teams

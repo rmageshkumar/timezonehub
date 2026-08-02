@@ -6,7 +6,7 @@ import { ArrowLeftRight } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Time Converter - Convert Between Timezones | TimezoneHub",
+  title: "Time Converter - Convert Between Timezones | ClockHive",
   description:
     "Convert times between cities instantly. Click and drag to select time ranges and see equivalent times across all timezones.",
 };

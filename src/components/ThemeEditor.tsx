@@ -175,7 +175,7 @@ export function ThemeEditor({ initialTheme }: { initialTheme: ThemeConfig | null
           value={theme.footerText || ""}
           onChange={(e) => setTheme({ ...theme, footerText: e.target.value })}
           className="input-field min-h-[80px]"
-          placeholder="© 2024 TimezoneHub. All rights reserved."
+          placeholder="© 2024 ClockHive. All rights reserved."
         />
       </div>
 
