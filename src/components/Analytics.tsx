@@ -2,10 +2,32 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import Script from "next/script";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    dataLayer?: any[];
+  }
+}
+
+function pageview(url: string) {
+  if (window.gtag) {
+    window.gtag("config", GA_ID!, { page_path: url });
+  }
+}
 
 export function Analytics() {
   const pathname = usePathname();
 
+  // Google Analytics 4
+  useEffect(() => {
+    if (GA_ID) pageview(pathname);
+  }, [pathname]);
+
+  // Custom analytics (keep existing)
   useEffect(() => {
     const recordPageView = async () => {
       try {
@@ -28,7 +50,28 @@ export function Analytics() {
     recordPageView();
   }, [pathname]);
 
-  return null;
+  if (!GA_ID) return null;
+
+  return (
+    <>
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+      />
+      <Script
+        id="google-analytics"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+          `,
+        }}
+      />
+    </>
+  );
 }
 
 function getDeviceType(): string {
