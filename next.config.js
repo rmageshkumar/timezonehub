@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  experimental: {
+    useTypeScriptCli: true,
+  },
   turbopack: {
     root: __dirname,
   },
