@@ -5,7 +5,7 @@ import { CountryCard } from "@/components/CountryCard";
 import { AdUnit } from "@/components/AdUnit";
 import { HeroSearch } from "@/components/HeroSearch";
 import { Timeline } from "@/components/Timeline";
-import { Globe, ArrowRight, Search, Zap, Users, TrendingUp } from "lucide-react";
+import { Globe, ArrowRight, Search, Zap, Users, TrendingUp, ArrowLeftRight, Calendar, Sparkles, Play, ShieldCheck, Star } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -197,6 +197,101 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Tools Section */}
+      <section className="py-16 bg-slate-50/50 dark:bg-slate-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+              Everything You Need to Master Time Zones
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
+              A complete toolkit for global teams and remote workers
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ToolCard icon={<Globe className="w-5 h-5" />} title="Country Explorer" desc="Browse 126+ countries with accurate timezone data" href="/countries" />
+            <ToolCard icon={<ArrowLeftRight className="w-5 h-5" />} title="Time Converter" desc="Convert times between any two cities instantly" href="/converter" />
+            <ToolCard icon={<Calendar className="w-5 h-5" />} title="Meeting Planner" desc="Find overlapping working hours across multiple cities" href="/meeting-planner" />
+            <ToolCard icon={<Sparkles className="w-5 h-5" />} title="AI Scheduler" desc="Let AI find the best meeting time with smart scoring" href="/ai-scheduler" />
+            <ToolCard icon={<Play className="w-5 h-5" />} title="Scrum Poker" desc="Agile estimation tool for distributed development teams" href="/scrum-poker" />
+            <ToolCard icon={<Search className="w-5 h-5" />} title="Smart Search" desc="Search by city, airport code, timezone, or country" href="/search" />
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials / Social Proof */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+              Trusted by Remote Teams Worldwide
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-2">
+              Join thousands of professionals who manage time zones smarter
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "ClockHive replaced 3 different tools we were using. The meeting planner alone saves us hours every week.",
+                name: "Sarah Chen",
+                role: "Engineering Manager, Remote-First Startup",
+              },
+              {
+                quote: "Finally, a timezone tool that's both powerful AND beautiful. The AI scheduler is surprisingly accurate.",
+                name: "Marcus Rivera",
+                role: "Product Designer, Distributed Agency",
+              },
+              {
+                quote: "We use ClockHive daily for our standup scheduling across 8 time zones. The scrum poker is a bonus!",
+                name: "Priya Patel",
+                role: "Scrum Master, Global SaaS Company",
+              },
+            ].map((t, i) => (
+              <div key={i} className="glass rounded-2xl p-6 relative">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 mb-4 leading-relaxed italic">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-accent-400 flex items-center justify-center text-white font-bold text-sm">
+                    {t.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div>
+                    <div className="font-medium text-sm text-slate-900 dark:text-slate-100">{t.name}</div>
+                    <div className="text-xs text-slate-500">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-primary-500 to-accent-500">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Ready to Master Time Zones?
+          </h2>
+          <p className="text-white/80 mb-8">
+            Join thousands of remote workers and global teams using ClockHive.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/auth/register" className="px-6 py-3 bg-white text-primary-600 rounded-lg font-semibold hover:bg-white/90 transition-colors shadow-lg">
+              Get Started Free
+            </Link>
+            <Link href="/countries" className="px-6 py-3 border-2 border-white/30 text-white rounded-lg font-semibold hover:bg-white/10 transition-colors">
+              Explore Countries
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <Footer />
     </div>
@@ -212,5 +307,19 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode; titl
       <h3 className="font-semibold text-lg mb-2 text-slate-900 dark:text-slate-100">{title}</h3>
       <p className="text-sm text-slate-600 dark:text-slate-400">{description}</p>
     </div>
+  );
+}
+
+function ToolCard({ icon, title, desc, href }: { icon: React.ReactNode; title: string; desc: string; href: string }) {
+  return (
+    <Link href={href} className="glass rounded-2xl p-6 card-hover flex items-start gap-4 group">
+      <div className="w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-950 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 dark:group-hover:bg-primary-900 transition-colors">
+        <div className="text-primary-500">{icon}</div>
+      </div>
+      <div>
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">{title}</h3>
+        <p className="text-sm text-slate-500 mt-1">{desc}</p>
+      </div>
+    </Link>
   );
 }

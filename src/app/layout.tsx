@@ -7,28 +7,32 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "ClockHive - The Most Beautiful Timezone Management Platform",
+    default: "ClockHive - Beautiful Timezone Management for Remote Teams",
     template: "%s | ClockHive",
   },
   description:
-    "Manage time zones for remote teams, developers, travelers, and global businesses. Compare cities, plan meetings, and track world time.",
+    "Manage time zones for remote teams, developers, travelers, and global businesses. Compare cities, plan meetings, track world times, and schedule across timezones.",
   keywords: [
     "timezone", "world clock", "time converter", "meeting planner",
     "remote teams", "timezone management", "GMT", "UTC", "city time",
+    "scrum poker", "planning poker", "ai scheduler", "clockhive",
   ],
+  authors: [{ name: "ClockHive" }],
+  creator: "ClockHive",
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: "ClockHive",
     title: "ClockHive - Beautiful Timezone Management",
-    description: "The most beautiful timezone management platform for remote teams and global businesses.",
+    description: "The most beautiful timezone management platform for remote teams and global businesses. Compare times, plan meetings, and stay in sync.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ClockHive",
-    description: "Beautiful timezone management for everyone.",
+    title: "ClockHive - Beautiful Timezone Management",
+    description: "Compare times, plan meetings, and stay in sync with the most intuitive timezone platform.",
+    creator: "@clockhive",
   },
-  robots: { index: true, follow: true },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
 };
 
 export default function RootLayout({
@@ -39,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="min-h-screen antialiased">
