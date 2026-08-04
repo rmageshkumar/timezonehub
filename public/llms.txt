@@ -1,0 +1,63 @@
+# ClockHive - Beautiful Timezone Management Platform
+
+> All-in-one timezone management for remote teams, developers, travelers, and global businesses.
+
+## About ClockHive
+
+ClockHive is a free timezone management platform that helps you compare world times, plan meetings across time zones, convert times, and manage global teams. It supports 126+ countries and 150+ cities with accurate timezone and DST data.
+
+- **Website**: https://clockhive.cc
+- **Free to use**: No sign-up required for core features
+- **AI-Powered**: Smart scheduler that analyzes 336 time slots across 7 days
+
+## Core Features
+
+| Feature | URL | Description |
+|---------|-----|-------------|
+| Home | https://clockhive.cc/ | Search countries/cities, view world times at a glance |
+| Countries | https://clockhive.cc/countries | Browse all 126+ supported countries with timezone info |
+| Time Converter | https://clockhive.cc/converter | Convert times between multiple timezones instantly |
+| Compare | https://clockhive.cc/compare | Compare working hours across multiple cities side-by-side |
+| Meeting Planner | https://clockhive.cc/meeting-planner | Find overlapping working hours for distributed teams |
+| AI Scheduler | https://clockhive.cc/ai-scheduler | AI-powered meeting time finder with smart scoring |
+| Scrum Poker | https://clockhive.cc/scrum-poker | Agile planning poker for remote teams |
+| Blog | https://clockhive.cc/blog | Tips and guides on timezone management |
+| FAQ | https://clockhive.cc/faq | Frequently asked questions |
+| Contact | https://clockhive.cc/contact | Get in touch with the ClockHive team |
+
+## How to Use ClockHive
+
+### Quick Time Lookup
+1. Go to https://clockhive.cc/
+2. Search for any country or city
+3. See the current local time instantly
+
+### Compare Timezones
+1. Go to https://clockhive.cc/compare
+2. Add multiple cities to compare
+3. View overlapping working hours
+
+### Plan a Meeting
+1. Go to https://clockhive.cc/meeting-planner
+2. Add team member locations
+3. Use the slider to find the best meeting time
+4. Copy the meeting details to share
+
+### Convert Times
+1. Go to https://clockhive.cc/converter
+2. Enter a source time and timezone
+3. See the converted time across all your selected timezones
+
+### Use AI Scheduler
+1. Go to https://clockhive.cc/ai-scheduler
+2. Add participants and their locations
+3. Set date range and meeting duration
+4. AI scores and ranks the best time slots
+
+## Technical Details
+
+- **Framework**: Next.js 16 with Server Components
+- **Database**: Turso (libSQL) with Prisma ORM
+- **Authentication**: NextAuth.js v5
+- **AI**: Smart slot scoring algorithm
+- **Timezone Data**: IANA timezone database with DST support
