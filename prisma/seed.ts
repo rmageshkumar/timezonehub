@@ -1157,35 +1157,650 @@ async function main() {
     },
   });
 
-  // ==================== SAMPLE BLOG POST ====================
-  await prisma.blogCategory.upsert({
-    where: { slug: "timezone-tips" },
-    update: {},
-    create: { name: "Timezone Tips", slug: "timezone-tips", description: "Tips for managing time zones" },
-  });
+  // ==================== BLOG CATEGORIES & POSTS ====================
+  console.log("📝 Seeding blog posts...");
 
-  await prisma.blogPost.upsert({
-    where: { slug: "why-remote-teams-need-timezone-tool" },
-    update: {},
-    create: {
-      title: "Why Every Remote Team Needs a Timezone Management Tool",
+  // Categories
+  const blogCategories = [
+    { name: "Remote Work", slug: "remote-work", description: "Tips and strategies for managing distributed teams across time zones" },
+    { name: "Timezone Guides", slug: "timezone-guides", description: "Comprehensive guides to understanding time zones, DST, and global time" },
+    { name: "Productivity", slug: "productivity", description: "How to stay productive when working across multiple time zones" },
+    { name: "Travel Tips", slug: "travel-tips", description: "Timezone tips for travelers and digital nomads" },
+    { name: "Developer Tools", slug: "developer-tools", description: "Timezone APIs, libraries, and tools for developers" },
+    { name: "Business", slug: "business", description: "Timezone strategies for global business operations" },
+  ];
+
+  for (const cat of blogCategories) {
+    await prisma.blogCategory.upsert({ where: { slug: cat.slug }, update: {}, create: cat });
+  }
+  console.log(`✅ ${blogCategories.length} blog categories created`);
+
+  const blogPosts = [
+    // ===== TIMEZONE GUIDES =====
+    {
+      slug: "best-time-to-schedule-meetings-india-us",
+      categorySlug: "timezone-guides",
+      title: "Best Time to Schedule Meetings Between India and the US (IST to EST/PST)",
+      excerpt: "Finding overlapping working hours between India (IST) and the United States (EST/PST) is one of the biggest challenges for remote teams. Here's the definitive guide.",
+      tags: ["India", "USA", "IST", "EST", "PST", "meeting scheduling", "remote work"],
+      seoTitle: "Best Time for India-US Meetings: IST to EST/PST Guide | ClockHive",
+      seoDescription: "Learn the best overlapping hours for scheduling meetings between India (IST) and the US (EST, CST, MST, PST). Complete guide with time zone charts.",
+      content: `<h2>The India-US Time Zone Challenge</h2>
+<p>India operates on a single time zone — <strong>IST (UTC+5:30)</strong>. The United States spans <strong>four main time zones</strong>: Eastern (EST/UTC-5), Central (CST/UTC-6), Mountain (MST/UTC-7), and Pacific (PST/UTC-8).</p>
+<p>This creates a <strong>10.5 to 13.5 hour difference</strong>, making it notoriously difficult to find overlapping working hours.</p>
+
+<h3>Best Meeting Windows (India ↔ US)</h3>
+<table>
+<tr><th>US Time Zone</th><th>Best Window for India</th><th>Best Window for US</th><th>Overlap Quality</th></tr>
+<tr><td>Eastern (EST)</td><td>7:00 PM – 10:30 PM IST</td><td>8:30 AM – 12:00 PM EST</td><td>⭐⭐⭐ Good</td></tr>
+<tr><td>Central (CST)</td><td>7:30 PM – 11:00 PM IST</td><td>8:00 AM – 11:30 AM CST</td><td>⭐⭐⭐ Good</td></tr>
+<tr><td>Mountain (MST)</td><td>8:00 PM – 11:30 PM IST</td><td>7:30 AM – 11:00 AM MST</td><td>⭐⭐ Fair</td></tr>
+<tr><td>Pacific (PST)</td><td>8:30 PM – 12:00 AM IST</td><td>7:00 AM – 10:30 AM PST</td><td>⭐ Tough</td></tr>
+</table>
+
+<h3>Pro Tips for India-US Teams</h3>
+<ul>
+<li><strong>Rotate meeting times</strong> — Don't always make one team sacrifice their evening or early morning.</li>
+<li><strong>Record meetings</strong> — The team member who can't attend live can watch later.</li>
+<li><strong>Use async communication</strong> — Loom videos, detailed Slack/Teams updates reduce meeting dependency.</li>
+<li><strong>Tuesday-Thursday sweet spot</strong> — Avoid Mondays (US team catching up) and Fridays (India team winding down).</li>
+</ul>`,
+    },
+    {
+      slug: "understanding-daylight-saving-time-dst",
+      categorySlug: "timezone-guides",
+      title: "Understanding Daylight Saving Time (DST): When, Why, and How It Affects You",
+      excerpt: "Daylight Saving Time affects over 70 countries. Learn when clocks change, why DST exists, and how to avoid scheduling disasters.",
+      tags: ["DST", "daylight saving", "time change", "summer time", "clock change"],
+      seoTitle: "Daylight Saving Time (DST) Explained: Dates, History & Impact | ClockHive",
+      seoDescription: "Complete guide to Daylight Saving Time. Learn when clocks spring forward and fall back, which countries observe DST, and how to handle time changes.",
+      content: `<h2>What Is Daylight Saving Time?</h2>
+<p>Daylight Saving Time (DST) is the practice of advancing clocks by one hour during summer months to extend evening daylight. Over <strong>70 countries</strong> observe DST, affecting more than <strong>1 billion people</strong>.</p>
+
+<h3>DST Dates by Region (2026)</h3>
+<table>
+<tr><th>Region</th><th>Spring Forward</th><th>Fall Back</th></tr>
+<tr><td>United States & Canada</td><td>March 8, 2026</td><td>November 1, 2026</td></tr>
+<tr><td>United Kingdom & EU</td><td>March 29, 2026</td><td>October 25, 2026</td></tr>
+<tr><td>Australia (AEDT)</td><td>October 4, 2026</td><td>April 5, 2026</td></tr>
+<tr><td>New Zealand</td><td>September 27, 2026</td><td>April 5, 2026</td></tr>
+<tr><td>Chile</td><td>September 6, 2026</td><td>April 5, 2026</td></tr>
+</table>
+
+<h3>Countries That DON'T Observe DST</h3>
+<p>Most countries near the equator don't need DST since daylight hours are consistent year-round. Major countries without DST include:</p>
+<ul>
+<li><strong>India</strong> — Single timezone, no DST</li>
+<li><strong>China</strong> — Single timezone (CST), no DST</li>
+<li><strong>Japan</strong> — No DST since 1952</li>
+<li><strong>Singapore, Malaysia, Indonesia</strong> — Near equator</li>
+<li><strong>Most of Africa and South America</strong></li>
+</ul>
+
+<h3>How DST Breaks Meeting Schedules</h3>
+<p>When the US "springs forward" but Europe hasn't yet, meetings that worked last week are suddenly off by an hour. <strong>Always check DST transition dates</strong> when scheduling recurring international meetings.</p>`,
+    },
+    {
+      slug: "why-time-zones-are-confusing",
+      categorySlug: "timezone-guides",
+      title: "Why Time Zones Are Confusing (And How to Finally Get Them Right)",
+      excerpt: "From 30-minute offsets to countries ignoring their own zones — time zones are full of surprises. Here's why they're so confusing.",
+      tags: ["timezone basics", "UTC", "GMT", "timezone offset", "world time"],
+      seoTitle: "Why Time Zones Are So Confusing: UTC, GMT, Offsets Explained | ClockHive",
+      seoDescription: "Time zones are confusing for good reason. Learn about UTC vs GMT, weird offsets, and why China has one time zone but spans five.",
+      content: `<h2>The World Has 38 Time Zones (Not 24)</h2>
+<p>If you think there are 24 time zones (one for each hour), you'd be wrong. There are actually <strong>38 time zones</strong> because many countries use <strong>30-minute or 45-minute offsets</strong>.</p>
+
+<h3>Weird Time Zone Offsets</h3>
+<ul>
+<li><strong>India: UTC+5:30</strong> — A single 30-minute offset for the entire country</li>
+<li><strong>Nepal: UTC+5:45</strong> — The world's only 45-minute offset</li>
+<li><strong>Iran: UTC+3:30</strong> — With DST, it becomes UTC+4:30</li>
+<li><strong>Myanmar: UTC+6:30</strong> — Another 30-minute offset</li>
+<li><strong>Newfoundland (Canada): UTC-3:30</strong> — Yes, Canada has a half-hour zone too</li>
+</ul>
+
+<h3>UTC vs GMT: What's the Difference?</h3>
+<p><strong>GMT</strong> (Greenwich Mean Time) is a time zone. <strong>UTC</strong> (Coordinated Universal Time) is a time standard. They happen to show the same time, but UTC is the scientific standard used worldwide.</p>
+
+<h3>China: One Country, One Time Zone (But Should Be Five)</h3>
+<p>China spans roughly <strong>five geographic time zones</strong> but uses a single zone — <strong>China Standard Time (UTC+8)</strong>. In western China (Xinjiang), the sun rises at 10 AM in winter!</p>
+
+<h3>How to Never Get Time Zones Wrong</h3>
+<ol>
+<li><strong>Always use IANA timezone names</strong> (e.g., "America/New_York", not "EST") — they include DST rules automatically.</li>
+<li><strong>Store times in UTC</strong> and convert to local time for display.</li>
+<li><strong>Use a reliable timezone tool</strong> — ClockHive handles all the complexity for you.</li>
+</ol>`,
+    },
+    // ===== REMOTE WORK =====
+    {
+      slug: "managing-remote-teams-across-time-zones",
+      categorySlug: "remote-work",
+      title: "Managing Remote Teams Across Time Zones: The Complete Playbook",
+      excerpt: "Leading a distributed team across multiple time zones? Here's how the best remote managers keep their teams aligned and productive.",
+      tags: ["remote work", "team management", "async communication", "distributed teams", "global teams"],
+      seoTitle: "How to Manage Remote Teams Across Time Zones | ClockHive",
+      seoDescription: "Complete guide to managing distributed teams across time zones. Async communication, meeting strategies, and tools for remote team success.",
+      content: `<h2>The Rise of Async-First Teams</h2>
+<p>The most successful distributed companies — GitLab, Buffer, Zapier — operate <strong>async-first</strong>. This means they default to written communication and minimize synchronous meetings.</p>
+
+<h3>Core Principles</h3>
+<ol>
+<li><strong>Document everything</strong> — If it's not written down, it didn't happen.</li>
+<li><strong>Default to async</strong> — Before scheduling a meeting, ask: "Can this be a document?"</li>
+<li><strong>Overlapping hours are sacred</strong> — Protect the 2-4 hours of overlap for collaboration.</li>
+<li><strong>Record all meetings</strong> — Team members in different time zones can watch later.</li>
+</ol>
+
+<h3>Tools for Async Communication</h3>
+<ul>
+<li><strong>Slack/Teams</strong> — For quick questions and updates (set Do Not Disturb hours!)</li>
+<li><strong>Notion/Confluence</strong> — For long-form documentation and project plans</li>
+<li><strong>Loom</strong> — For async video updates instead of status meetings</li>
+<li><strong>ClockHive</strong> — For checking team members' local times before messaging</li>
+</ul>`,
+    },
+    {
+      slug: "global-team-meeting-scheduling-guide",
+      categorySlug: "remote-work",
+      title: "How to Schedule Meetings That Work for Every Time Zone",
+      excerpt: "Stop playing email ping-pong to find a meeting time. Use this proven framework to schedule across time zones in one try.",
+      tags: ["meeting scheduling", "calendar", "timezone converter", "world clock", "global teams"],
+      seoTitle: "How to Schedule Meetings Across Time Zones | ClockHive",
+      seoDescription: "Stop the back-and-forth. Learn the 3-step framework for scheduling meetings that work for teams in any time zone.",
+      content: `<h2>The 3-Step Meeting Scheduling Framework</h2>
+
+<h3>Step 1: Find Overlapping Working Hours</h3>
+<p>Use ClockHive's <strong>Meeting Planner</strong> to add all team locations. The visual timeline shows exactly when everyone is available at a glance.</p>
+
+<h3>Step 2: Use the "Least Pain" Principle</h3>
+<p>Rotate the inconvenient time slots. If this meeting is early for the US team, make the next one early for the Asia team. Keep a rotation schedule.</p>
+
+<h3>Step 3: Share a Comparison Link</h3>
+<p>Don't just send a time — send a <strong>ClockHive compare link</strong> so everyone sees the meeting time in their local zone. No more "wait, is that 2 PM my time or yours?"</p>
+
+<h3>Meeting Cadence by Time Zone Spread</h3>
+<table>
+<tr><th>Time Zone Spread</th><th>Meeting Cadence</th><th>Strategy</th></tr>
+<tr><td>1-3 hours</td><td>Daily standups</td><td>Easy overlap — schedule anytime</td></tr>
+<tr><td>4-6 hours</td><td>2-3x per week</td><td>Plan around core overlap hours</td></tr>
+<tr><td>7-9 hours</td><td>1-2x per week</td><td>Rotate times, record everything</td></tr>
+<tr><td>10-12+ hours</td><td>Weekly or biweekly</td><td>Primarily async with occasional sync</td></tr>
+</table>`,
+    },
+    {
+      slug: "timezone-etiquette-remote-work",
+      categorySlug: "remote-work",
+      title: "Timezone Etiquette: 10 Rules Every Remote Worker Should Follow",
+      excerpt: "Good timezone manners make remote teams happier. Here are 10 etiquette rules that every distributed team member should know.",
+      tags: ["etiquette", "remote work", "communication", "work culture"],
+      seoTitle: "Timezone Etiquette: 10 Rules for Remote Workers | ClockHive",
+      seoDescription: "Master timezone etiquette with these 10 essential rules. From scheduling messages to respecting weekends, be a better remote teammate.",
+      content: `<h2>10 Timezone Etiquette Rules</h2>
+<ol>
+<li><strong>Check their local time before messaging</strong> — Don't Slack someone at 2 AM their time unless it's truly urgent.</li>
+<li><strong>Schedule messages for their morning</strong> — Use Slack's scheduled send feature.</li>
+<li><strong>Always include timezone in meeting invites</strong> — Say "2 PM EST / 11 AM PST / 7 PM GMT".</li>
+<li><strong>Rotate meeting times</strong> — Don't always make one timezone suffer.</li>
+<li><strong>Respect weekends and holidays</strong> — Different countries = different weekends and public holidays.</li>
+<li><strong>Set your working hours in your calendar</strong> — Let tools auto-detect your availability.</li>
+<li><strong>Use a shared world clock</strong> — ClockHive on your team's dashboard.</li>
+<li><strong>Be explicit about deadlines</strong> — "Friday EOD" means different things in different zones.</li>
+<li><strong>Don't apologize for your time zone</strong> — "Sorry for the early/late reply" shouldn't be needed in async teams.</li>
+<li><strong>Assume good intent</strong> — A delayed response usually means they're sleeping, not ignoring you.</li>
+</ol>`,
+    },
+    // ===== TRAVEL TIPS =====
+    {
+      slug: "surviving-jet-lag-science-backed-tips",
+      categorySlug: "travel-tips",
+      title: "How to Beat Jet Lag: Science-Backed Tips for Long-Haul Travelers",
+      excerpt: "Jet lag can ruin the first 2-3 days of any trip. Use these research-backed strategies to adjust faster to new time zones.",
+      tags: ["jet lag", "travel", "circadian rhythm", "sleep", "timezone adjustment"],
+      seoTitle: "How to Beat Jet Lag: 12 Science-Backed Tips | ClockHive",
+      seoDescription: "Beat jet lag fast with these 12 science-backed strategies. Learn how light exposure, meal timing, and melatonin help you adjust to new time zones.",
+      content: `<h2>Why Jet Lag Happens</h2>
+<p>Your body's internal clock (circadian rhythm) can only adjust about <strong>1-1.5 hours per day</strong>. Flying from New York to Tokyo (13-hour difference) means you'll need about a week to fully adjust naturally.</p>
+
+<h3>12 Science-Backed Jet Lag Tips</h3>
+<ol>
+<li><strong>Shift your schedule before you fly</strong> — Start adjusting bedtime 2-3 days before departure.</li>
+<li><strong>Light exposure is your #1 tool</strong> — Morning light advances your clock, evening light delays it.</li>
+<li><strong>Melatonin (0.5-3mg)</strong> — Take it at your target bedtime at the destination, not during the flight.</li>
+<li><strong>Hydrate aggressively</strong> — Dehydration worsens jet lag symptoms.</li>
+<li><strong>Avoid alcohol and caffeine on the flight</strong> — Both disrupt sleep quality.</li>
+<li><strong>Eat on the destination schedule</strong> — Even if you're not hungry, eat meals at local times.</li>
+<li><strong>Exercise in the morning</strong> — A morning run or walk helps reset your internal clock.</li>
+<li><strong>Don't nap more than 20 minutes</strong> — Long naps confuse your body clock.</li>
+<li><strong>Use the Timeshifter app</strong> — NASA-backed algorithm for personalized jet lag plans.</li>
+<li><strong>Fly east? Seek morning light. Fly west? Seek evening light.</strong></li>
+<li><strong>Book flights strategically</strong> — Arriving in the evening lets you go straight to sleep.</li>
+<li><strong>Give yourself grace</strong> — It takes 1 day per time zone crossed to fully adjust.</li>
+</ol>`,
+    },
+    {
+      slug: "digital-nomad-timezone-strategy",
+      categorySlug: "travel-tips",
+      title: "Digital Nomad Timezone Strategy: How to Work From Anywhere",
+      excerpt: "Working as a digital nomad means constantly changing time zones. Here's how to stay productive while traveling the world.",
+      tags: ["digital nomad", "travel", "remote work", "freelancing", "world clock"],
+      seoTitle: "Digital Nomad Timezone Strategy Guide | ClockHive",
+      seoDescription: "How digital nomads manage time zones while traveling. Tips for client communication, scheduling, and staying productive from anywhere.",
+      content: `<h2>The Digital Nomad Timezone Challenge</h2>
+<p>You're in Bali (UTC+8) but your client is in New York (UTC-5). That's a <strong>13-hour difference</strong>. Here's how to make it work.</p>
+
+<h3>Choose Your Base Strategically</h3>
+<ul>
+<li><strong>Americas clients?</strong> — Work from Latin America (similar time zones).</li>
+<li><strong>European clients?</strong> — Work from Europe, Africa, or the Middle East.</li>
+<li><strong>Asian/Australian clients?</strong> — Work from Southeast Asia or Oceania.</li>
+<li><strong>Multiple time zones?</strong> — Pick a middle ground (e.g., Lisbon for US+EU overlap).</li>
+</ul>
+
+<h3>Best Nomad Hubs by Timezone Overlap</h3>
+<table>
+<tr><th>Your Clients</th><th>Best Nomad Base</th><th>Why</th></tr>
+<tr><td>US East Coast</td><td>Mexico City, Medellín, Buenos Aires</td><td>0-2 hour difference</td></tr>
+<tr><td>US West Coast</td><td>Bali, Thailand (work nights)</td><td>12-15 hour difference</td></tr>
+<tr><td>Europe</td><td>Lisbon, Barcelona, Cape Town</td><td>0-2 hour difference</td></tr>
+<tr><td>Mix of US + Europe</td><td>Lisbon, Canary Islands</td><td>4-5 hours from each</td></tr>
+</table>`,
+    },
+    {
+      slug: "timezone-pair-converter-guide",
+      categorySlug: "timezone-guides",
+      title: "How to Convert Between Any Two Time Zones Instantly",
+      excerpt: "From EST to IST, PST to GMT, or CET to JST — learn the fastest ways to convert time between any two time zones.",
+      tags: ["timezone converter", "EST to IST", "PST to GMT", "CET to JST", "UTC converter"],
+      seoTitle: "Time Zone Converter: Convert Between Any Two Zones | ClockHive",
+      seoDescription: "Convert time between any two time zones instantly. EST to IST, PST to GMT, CET to JST — free timezone converter with DST support.",
+      content: `<h2>Common Timezone Conversions</h2>
+
+<h3>EST to IST (Eastern US to India)</h3>
+<p>EST is <strong>10.5 hours behind</strong> IST. When it's 9 AM EST, it's 7:30 PM IST. The best meeting window is 7-10 AM EST (5:30-8:30 PM IST).</p>
+
+<h3>PST to GMT (Pacific US to UK)</h3>
+<p>PST is <strong>8 hours behind</strong> GMT. A 9 AM PST meeting is 5 PM GMT — perfect for US-UK collaboration.</p>
+
+<h3>CET to JST (Europe to Japan)</h3>
+<p>CET is <strong>8 hours behind</strong> JST. Early morning CET (7-9 AM) overlaps with late afternoon JST (3-5 PM).</p>
+
+<h3>AEST to EST (Australia to Eastern US)</h3>
+<p>AEST is <strong>14 hours ahead</strong> of EST (during US winter). Evening AEST (6-9 PM) overlaps with early morning EST (4-7 AM) — tough for both sides.</p>
+
+<p><strong>Pro tip:</strong> Use ClockHive's <a href="/converter">Time Converter</a> to convert between any two zones with automatic DST handling.</p>`,
+    },
+    // ===== PRODUCTIVITY =====
+    {
+      slug: "async-communication-vs-sync-meetings",
+      categorySlug: "productivity",
+      title: "Async vs Sync: When to Meet and When to Write It Down",
+      excerpt: "Not everything needs a meeting. Learn when async communication is better and when you truly need to sync up in real time.",
+      tags: ["async communication", "meetings", "productivity", "remote work"],
+      seoTitle: "Async vs Sync Communication: When to Meet vs Write | ClockHive",
+      seoDescription: "Should this be a meeting or a document? Decision framework for async vs sync communication in remote and distributed teams.",
+      content: `<h2>The Async-First Decision Framework</h2>
+<p>Before scheduling any meeting, run through these questions:</p>
+<ol>
+<li><strong>Is this sharing information?</strong> → Write a document.</li>
+<li><strong>Is this gathering feedback?</strong> → Use async comments on the document.</li>
+<li><strong>Is this brainstorming?</strong> → Start async (each person adds ideas), then a short sync to converge.</li>
+<li><strong>Is this a difficult conversation?</strong> → Sync meeting. Don't have hard conversations over text.</li>
+<li><strong>Is this team bonding?</strong> → Sync meeting. You can't build culture purely async.</li>
+</ol>
+
+<h3>When Async Wins</h3>
+<ul>
+<li>Status updates (replace standup meetings)</li>
+<li>Project proposals and RFCs</li>
+<li>Code reviews</li>
+<li>Announcements</li>
+<li>Documentation</li>
+</ul>
+
+<h3>When Sync Is Necessary</h3>
+<ul>
+<li>Performance reviews and 1:1s</li>
+<li>Crisis/incident response</li>
+<li>Complex decision-making with tradeoffs</li>
+<li>Team social events</li>
+<li>Onboarding new team members</li>
+</ul>`,
+    },
+    {
+      slug: "time-blocking-across-time-zones",
+      categorySlug: "productivity",
+      title: "Time Blocking Across Time Zones: A System for Global Teams",
+      excerpt: "Time blocking is powerful, but it gets complicated when your team spans 5+ time zones. Here's a system that actually works.",
+      tags: ["time blocking", "productivity", "deep work", "remote work", "calendar management"],
+      seoTitle: "Time Blocking Across Time Zones: Complete System | ClockHive",
+      seoDescription: "Master time blocking when your team spans multiple time zones. Coordinate deep work, meetings, and async collaboration across the globe.",
+      content: `<h2>The Color-Coded Calendar System</h2>
+<p>Use three color blocks that work across time zones:</p>
+<ul>
+<li><strong>🟢 Green (Flexible)</strong> — Deep work, can be moved. Block 3-4 hour chunks.</li>
+<li><strong>🟡 Yellow (Core Overlap)</strong> — The 2-4 hours where most team members overlap. Reserve for collaboration.</li>
+<li><strong>🔴 Red (Fixed)</strong> — Recurring meetings, appointments. Don't move these.</li>
+</ul>
+
+<h3>Finding Your Deep Work Window</h3>
+<p>Your best deep work happens when:</p>
+<ol>
+<li>It's during your natural energy peak (morning person or night owl?)</li>
+<li>Your collaborators are NOT overlapping (no Slack pings)</li>
+<li>You have at least 90 uninterrupted minutes</li>
+</ol>
+
+<h3>Communicating Your Blocks to the Team</h3>
+<p>Share your typical schedule with the team. Example for IST:</p>
+<blockquote>Deep Work: 10 AM – 1 PM IST | Core Overlap: 6 PM – 9 PM IST (for US team) | Fixed Meetings: Fridays 8 PM IST</blockquote>`,
+    },
+    // ===== DEVELOPER TOOLS =====
+    {
+      slug: "timezone-api-comparison-2026",
+      categorySlug: "developer-tools",
+      title: "Timezone API Comparison 2026: Which One Should You Use?",
+      excerpt: "Comparing the top timezone APIs for developers — features, pricing, accuracy, and ease of use. Find the right one for your project.",
+      tags: ["API", "developers", "timezone API", "REST", "programming"],
+      seoTitle: "Best Timezone API 2026: Comparison & Guide | ClockHive",
+      seoDescription: "Compare the top timezone APIs for 2026. Pricing, features, accuracy, and developer experience for building timezone-aware applications.",
+      content: `<h2>What to Look for in a Timezone API</h2>
+<ul>
+<li><strong>IANA timezone support</strong> — Must use standard timezone names (e.g., "America/New_York")</li>
+<li><strong>DST handling</strong> — Automatic daylight saving transitions</li>
+<li><strong>UTC offset calculation</strong> — Current offset including DST</li>
+<li><strong>Geolocation</strong> — Convert lat/lng to timezone</li>
+<li><strong>Rate limits & pricing</strong> — Free tier availability</li>
+</ul>
+
+<h3>Top Timezone APIs Compared</h3>
+<table>
+<tr><th>API</th><th>Free Tier</th><th>Best For</th><th>Notable Feature</th></tr>
+<tr><td>Google Time Zone API</td><td>$200 monthly credit</td><td>Enterprise apps</td><td>Highest accuracy, Google Maps integration</td></tr>
+<tr><td>TimeZoneDB</td><td>1 request/sec free</td><td>Simple projects</td><td>Simple REST API, CSV downloads</td></tr>
+<tr><td>Abstract API</td><td>1,000 req/month free</td><td>Startups</td><td>Clean JSON responses</td></tr>
+<tr><td>World Time API</td><td>Unlimited free</td><td>Hobby projects</td><td>Simple, no auth required</td></tr>
+<tr><td>IPGeolocation Timezone</td><td>1,000 req/day free</td><td>IP-based lookup</td><td>Timezone from IP address</td></tr>
+</table>
+
+<h3>Pro Tip: Use moment-timezone or date-fns-tz</h3>
+<p>If you just need client-side conversion, use JavaScript libraries like <code>date-fns-tz</code> or <code>luxon</code> instead of an API. They use the browser's IANA timezone database.</p>`,
+    },
+    {
+      slug: "handling-timezones-javascript-react",
+      categorySlug: "developer-tools",
+      title: "Handling Time Zones in JavaScript and React: The Right Way",
+      excerpt: "Time zones in JavaScript are painful. Learn the right patterns for displaying, converting, and storing times in React apps.",
+      tags: ["JavaScript", "React", "date-fns", "luxon", "programming", "frontend"],
+      seoTitle: "Handling Time Zones in JavaScript & React | ClockHive",
+      seoDescription: "The definitive guide to handling time zones in JavaScript and React. Avoid common pitfalls with dates, DST, and formatting across time zones.",
+      content: `<h2>The Golden Rules of Time Zones in JavaScript</h2>
+<ol>
+<li><strong>Store in UTC, display in local</strong> — All dates in your database should be UTC.</li>
+<li><strong>Use IANA timezone names</strong> — "America/New_York", not "EST" (which is ambiguous with DST).</li>
+<li><strong>Never use moment.js</strong> — It's deprecated. Use <code>date-fns-tz</code>, <code>luxon</code>, or <code>Intl.DateTimeFormat</code>.</li>
+</ol>
+
+<h3>Quick Examples</h3>
+
+<pre><code>// ✅ Convert UTC to a specific timezone
+import { utcToZonedTime, format } from 'date-fns-tz';
+
+const utcDate = new Date('2026-08-04T12:00:00Z');
+const tokyoTime = utcToZonedTime(utcDate, 'Asia/Tokyo');
+console.log(format(tokyoTime, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Tokyo' }));
+// → "2026-08-04 21:00:00"
+
+// ✅ Display in user's local timezone (browser)
+const localTime = new Date().toLocaleString('en-US', {
+  timeZone: 'America/New_York',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+</code></pre>
+
+<h3>Common Mistakes to Avoid</h3>
+<ul>
+<li>❌ <code>new Date('2026-08-04')</code> — parsed as UTC, displayed as local. Confusing!</li>
+<li>❌ Hardcoding offsets like <code>+05:30</code> — doesn't account for DST changes.</li>
+<li>❌ Comparing dates as strings — use timestamps (milliseconds) instead.</li>
+<li>✅ Use <code>date-fns-tz</code> or <code>luxon</code> for all timezone operations.</li>
+</ul>`,
+    },
+    // ===== BUSINESS =====
+    {
+      slug: "global-business-hours-timezone-strategy",
+      categorySlug: "business",
+      title: "How Global Companies Handle Customer Support Across Time Zones",
+      excerpt: "From follow-the-sun support to regional hubs — how the world's best companies provide 24/7 service across every time zone.",
+      tags: ["customer support", "business", "global operations", "24/7 support"],
+      seoTitle: "Global Customer Support Timezone Strategy | ClockHive",
+      seoDescription: "How global companies structure customer support across time zones. Follow-the-sun model, regional hubs, and tools for 24/7 coverage.",
+      content: `<h2>The Follow-the-Sun Model</h2>
+<p>The most common approach for 24/7 support: teams in different time zones hand off tickets as their workday ends. A ticket started in Sydney is picked up by London, then handed to New York.</p>
+
+<h3>Follow-the-Sun Handoff Zones</h3>
+<table>
+<tr><th>Region</th><th>Coverage (UTC)</th><th>Hub Cities</th></tr>
+<tr><td>APAC</td><td>22:00 – 07:00 UTC</td><td>Sydney, Tokyo, Singapore, Bangalore</td></tr>
+<tr><td>EMEA</td><td>07:00 – 16:00 UTC</td><td>London, Dublin, Berlin, Dubai</td></tr>
+<tr><td>Americas</td><td>13:00 – 01:00 UTC</td><td>New York, Austin, São Paulo, Toronto</td></tr>
+</table>
+
+<h3>Key Practices for 24/7 Support Teams</h3>
+<ul>
+<li><strong>Detailed handoff notes</strong> — Template: "What happened, what's pending, what's next"</li>
+<li><strong>Shared knowledge base</strong> — Every solution documented so any team can resolve</li>
+<li><strong>Overlap periods</strong> — 1-2 hours of overlap between regions for knowledge transfer</li>
+<li><strong>Regional SLAs</strong> — Different response time targets for different regions</li>
+</ul>`,
+    },
+    {
+      slug: "timezone-mistakes-costing-businesses-money",
+      categorySlug: "business",
+      title: "5 Timezone Mistakes That Are Costing Your Business Money",
+      excerpt: "Missed deadlines, double-booked meetings, confused clients — timezone mistakes have real costs. Here's how to fix them.",
+      tags: ["business", "productivity", "mistakes", "ROI", "timezone management"],
+      seoTitle: "5 Timezone Mistakes Costing Businesses Money | ClockHive",
+      seoDescription: "Timezone errors cost businesses productivity, client trust, and revenue. Learn the 5 most common mistakes and how to fix them.",
+      content: `<h2>5 Costly Timezone Mistakes</h2>
+
+<h3>1. The "9 AM Meeting" Without a Time Zone</h3>
+<p><strong>Cost:</strong> Confused attendees, no-shows, rescheduling emails back and forth.<br/>
+<strong>Fix:</strong> Always include the timezone. Better yet, send a ClockHive compare link so everyone sees it in their local time.</p>
+
+<h3>2. Deadline Ambiguity ("EOD Friday")</h3>
+<p><strong>Cost:</strong> Work delivered 12+ hours late because "Friday EOD" means different things.<br/>
+<strong>Fix:</strong> Specify exact UTC time: "Due Friday 23:59 UTC".</p>
+
+<h3>3. Forgetting Daylight Saving Transitions</h3>
+<p><strong>Cost:</strong> Meetings shift by an hour for 1-3 weeks (US and Europe change clocks on different dates).<br/>
+<strong>Fix:</strong> Use IANA timezone names that auto-handle DST. Check transition dates quarterly.</p>
+
+<h3>4. Scheduling Across 12+ Hour Differences</h3>
+<p><strong>Cost:</strong> One team always gets the terrible meeting time → burnout and resentment.<br/>
+<strong>Fix:</strong> Rotate meeting times. Record all sessions. Default to async.</p>
+
+<h3>5. Not Using Timezone Tools</h3>
+<p><strong>Cost:</strong> Mental math errors, "I thought it was PM not AM", missed client calls.<br/>
+<strong>Fix:</strong> Use ClockHive. It's free and eliminates all of these errors.</p>`,
+    },
+    {
       slug: "why-remote-teams-need-timezone-tool",
+      categorySlug: "remote-work",
+      title: "Why Every Remote Team Needs a Timezone Management Tool",
       excerpt: "Managing time zones across distributed teams is one of the biggest challenges in remote work. Here's why a dedicated tool matters.",
+      tags: ["remote work", "tools", "productivity", "timezone management"],
+      seoTitle: "Why Remote Teams Need Timezone Management | ClockHive",
+      seoDescription: "Learn why timezone management is essential for remote teams and how to pick the right tool.",
       content: `<p>In today's distributed work environment, teams are spread across the globe. Coordinating meetings, deadlines, and collaboration across time zones has become a critical skill.</p>
 <p>A good timezone management tool helps you:</p>
 <ul>
 <li>Quickly find overlapping working hours</li>
 <li>Avoid scheduling meetings outside someone's work hours</li>
 <li>Plan project timelines with timezone awareness</li>
+<li>Share comparison links so everyone sees times in their local zone</li>
+<li>Check if it's a reasonable hour before messaging teammates</li>
 </ul>`,
-      status: "published",
-      publishedAt: new Date(),
-      categoryId: (await prisma.blogCategory.findUnique({ where: { slug: "timezone-tips" } }))!.id,
-      seoTitle: "Why Remote Teams Need Timezone Management | ClockHive",
-      seoDescription: "Learn why timezone management is essential for remote teams and how to pick the right tool.",
     },
-  });
-  console.log("✅ Sample blog post created");
+    {
+      slug: "scrum-poker-distributed-teams-guide",
+      categorySlug: "remote-work",
+      title: "Scrum Poker for Distributed Teams: How to Run Remote Estimation Sessions",
+      excerpt: "Planning poker doesn't stop being useful when your team goes remote. Here's how to run effective estimation sessions across time zones.",
+      tags: ["scrum", "agile", "planning poker", "estimation", "remote teams"],
+      seoTitle: "Scrum Poker for Distributed Teams | ClockHive",
+      seoDescription: "How to run effective Scrum Poker / Planning Poker sessions with distributed teams. Tips for remote agile estimation across time zones.",
+      content: `<h2>Why Scrum Poker Works for Remote Teams</h2>
+<p>Scrum Poker (Planning Poker) prevents <strong>anchoring bias</strong> — when the first person to speak influences everyone else's estimate. Each person votes independently, then the results are revealed simultaneously.</p>
+
+<h3>How to Run Remote Planning Poker</h3>
+<ol>
+<li><strong>Pick a time that works for the whole team</strong> — Use ClockHive's Meeting Planner.</li>
+<li><strong>Share the backlog items in advance</strong> — Give everyone 24 hours to review.</li>
+<li><strong>Use a digital tool</strong> — ClockHive's free Scrum Poker tool (no sign-up needed).</li>
+<li><strong>Discuss outliers</strong> — If one person voted 3 and another voted 13, let them explain their reasoning.</li>
+<li><strong>Re-vote until consensus</strong> — Usually takes 2-3 rounds per story.</li>
+</ol>
+
+<h3>Fibonacci vs T-Shirt Sizing</h3>
+<ul>
+<li><strong>Fibonacci (1,2,3,5,8,13,21)</strong> — Best for teams that need precise estimates.</li>
+<li><strong>T-Shirt (XS,S,M,L,XL)</strong> — Best for high-level roadmap planning.</li>
+<li><strong>Modified Fibonacci</strong> — Add 20, 40, 100 for very large items.</li>
+</ul>`,
+    },
+    {
+      slug: "ai-meeting-scheduler-timezone",
+      categorySlug: "timezone-guides",
+      title: "How AI Meeting Schedulers Handle Time Zones Automatically",
+      excerpt: "AI-powered meeting schedulers are changing how we coordinate across time zones. Here's how they work and why they're worth using.",
+      tags: ["AI", "meeting scheduler", "artificial intelligence", "automation", "productivity"],
+      seoTitle: "AI Meeting Scheduler Timezone Automation | ClockHive",
+      seoDescription: "How AI meeting schedulers automatically handle time zones to find the best meeting time. No more manual timezone math.",
+      content: `<h2>How AI Schedulers Work</h2>
+<p>AI meeting schedulers analyze <strong>hundreds of time slots</strong> across a date range and score each one based on multiple factors:</p>
+<ol>
+<li><strong>Business hours overlap</strong> — Are all participants within their working hours?</li>
+<li><strong>DST awareness</strong> — Does the slot fall on a DST transition day?</li>
+<li><strong>Public holidays</strong> — Is it a holiday in any participant's country?</li>
+<li><strong>Time zone convenience</strong> — Balancing early/late slots fairly.</li>
+<li><strong>Historical patterns</strong> — When has this team successfully met before?</li>
+</ol>
+
+<h3>ClockHive's AI Scheduler</h3>
+<p>Our AI scans <strong>336 half-hour slots</strong> across 7 days and ranks the top 10 best times with explanations of why each slot was chosen. Try it at <a href="/ai-scheduler">clockhive.cc/ai-scheduler</a>.</p>`,
+    },
+    {
+      slug: "utc-gmt-ist-est-pst-timezone-abbreviations-guide",
+      categorySlug: "timezone-guides",
+      title: "UTC, GMT, IST, EST, PST: Timezone Abbreviations Explained",
+      excerpt: "Confused by UTC, GMT, IST, EST, PST, and all the other timezone abbreviations? Here's what each one means and when to use them.",
+      tags: ["UTC", "GMT", "IST", "EST", "PST", "abbreviations", "timezone basics"],
+      seoTitle: "Timezone Abbreviations: UTC, GMT, IST, EST, PST Explained | ClockHive",
+      seoDescription: "Complete guide to timezone abbreviations. Learn what UTC, GMT, IST, EST, PST, CST, MST, CET, JST, AEST mean and when to use each.",
+      content: `<h2>Common Timezone Abbreviations</h2>
+<table>
+<tr><th>Abbreviation</th><th>Full Name</th><th>UTC Offset</th><th>Region</th></tr>
+<tr><td>UTC</td><td>Coordinated Universal Time</td><td>±0:00</td><td>Global standard</td></tr>
+<tr><td>GMT</td><td>Greenwich Mean Time</td><td>±0:00</td><td>UK, Portugal, Iceland (winter)</td></tr>
+<tr><td>IST</td><td>India Standard Time</td><td>+5:30</td><td>India, Sri Lanka</td></tr>
+<tr><td>EST</td><td>Eastern Standard Time</td><td>-5:00</td><td>US East Coast (winter)</td></tr>
+<tr><td>EDT</td><td>Eastern Daylight Time</td><td>-4:00</td><td>US East Coast (summer)</td></tr>
+<tr><td>PST</td><td>Pacific Standard Time</td><td>-8:00</td><td>US West Coast (winter)</td></tr>
+<tr><td>CST</td><td>Central Standard Time</td><td>-6:00</td><td>Central US, China Standard Time (+8:00!)</td></tr>
+<tr><td>CET</td><td>Central European Time</td><td>+1:00</td><td>France, Germany, Italy, Spain (winter)</td></tr>
+<tr><td>JST</td><td>Japan Standard Time</td><td>+9:00</td><td>Japan</td></tr>
+<tr><td>AEST</td><td>Australian Eastern Standard Time</td><td>+10:00</td><td>Sydney, Melbourne, Brisbane</td></tr>
+<tr><td>SGT</td><td>Singapore Time</td><td>+8:00</td><td>Singapore, Malaysia, Philippines</td></tr>
+</table>
+
+<h3>⚠️ Warning: Abbreviations Are Ambiguous</h3>
+<p><strong>CST</strong> can mean Central Standard Time (UTC-6, US) OR China Standard Time (UTC+8). <strong>IST</strong> can mean India Standard Time OR Israel Standard Time. Always use <strong>IANA timezone names</strong> like "America/Chicago" or "Asia/Kolkata" for programming.</p>`,
+    },
+    {
+      slug: "world-clock-apps-comparison-2026",
+      categorySlug: "timezone-guides",
+      title: "Best World Clock Apps 2026: Compare Features, Pricing, and Accuracy",
+      excerpt: "Looking for a world clock app? We compare the top options for remote teams, travelers, and global businesses.",
+      tags: ["world clock", "apps", "comparison", "tools", "timezone"],
+      seoTitle: "Best World Clock Apps 2026: Feature Comparison | ClockHive",
+      seoDescription: "Compare the best world clock apps for 2026. Features, pricing, and accuracy for remote teams, travelers, and global professionals.",
+      content: `<h2>What Makes a Great World Clock App?</h2>
+<ul>
+<li><strong>Accurate timezone data</strong> — Must use IANA database with automatic DST updates</li>
+<li><strong>Live updating times</strong> — No manual refresh needed</li>
+<li><strong>City search</strong> — Quick lookup for any city worldwide</li>
+<li><strong>Comparison view</strong> — See multiple cities side by side</li>
+<li><strong>Business hours overlay</strong> — Know when it's working hours</li>
+<li><strong>Free</strong> — Shouldn't cost money for basic features</li>
+</ul>
+
+<h3>Top World Clock Apps</h3>
+<table>
+<tr><th>App</th><th>Free?</th><th>Best For</th></tr>
+<tr><td><strong>ClockHive</strong></td><td>✅ Yes</td><td>Remote teams, meeting planning, AI scheduling, Scrum Poker</td></tr>
+<tr><td>TimeAndDate.com</td><td>✅ Yes</td><td>Quick lookups, DST info</td></tr>
+<tr><td>Every Time Zone</td><td>✅ Yes</td><td>Simple slider-based comparison</td></tr>
+<tr><td>World Time Buddy</td><td>✅ Yes (with ads)</td><td>Meeting scheduling with calendar view</td></tr>
+<tr><td>Spacetime.am</td><td>✅ Yes</td><td>Slack integration for teams</td></tr>
+</table>`,
+    },
+    {
+      slug: "timezone-management-startup-founders",
+      categorySlug: "business",
+      title: "Timezone Management for Startup Founders: Scaling Globally From Day One",
+      excerpt: "Startup founders building global teams need timezone strategies from the start. Here's how to scale without burning out your team.",
+      tags: ["startup", "founders", "scaling", "global teams", "hiring"],
+      seoTitle: "Timezone Management for Startup Founders | ClockHive",
+      seoDescription: "How startup founders can build global teams with smart timezone strategies. Hire globally without the coordination nightmare.",
+      content: `<h2>Build Timezone-Aware From Day One</h2>
+<p>The best startups think globally from the start. But hiring across time zones without a strategy leads to chaos. Here's the playbook:</p>
+
+<h3>1. Define Your "Async Window"</h3>
+<p>Identify the 3-4 hour window where most of your team overlaps. Protect this window for collaboration — no deep work, no external meetings.</p>
+
+<h3>2. Document Your Timezone Policy</h3>
+<p>Write down and share: expected response times, core hours, meeting rotation rules, and holiday policies. New hires should read this on day one.</p>
+
+<h3>3. Hire in Adjacent Time Zones First</h3>
+<p>Your first 5 remote hires should be within 3-4 hours of your HQ timezone. Once processes are solid, expand to 6-8 hour differences.</p>
+
+<h3>4. Invest in Async Infrastructure</h3>
+<p>Notion, Loom, Slack — the tools that reduce meeting dependency. Every decision should have a written record.</p>`,
+    },
+  ];
+
+  for (const post of blogPosts) {
+    const category = await prisma.blogCategory.findUnique({ where: { slug: post.categorySlug } });
+    if (!category) { console.log(`⚠️  Category not found: ${post.categorySlug}`); continue; }
+
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        tags: JSON.stringify(post.tags),
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
+      },
+      create: {
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        tags: JSON.stringify(post.tags),
+        status: "published",
+        publishedAt: new Date(),
+        categoryId: category.id,
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
+      },
+    });
+  }
+  console.log(`✅ ${blogPosts.length} blog posts seeded`);
 
   // ==================== TOURIST ATTRACTIONS ====================
   console.log("🎡 Seeding tourist attractions...");

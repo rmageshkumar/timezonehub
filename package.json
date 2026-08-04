@@ -25,6 +25,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:backup": "cp prisma/dev.db ~/Desktop/clockhive-backup-$(date +%Y%m%d-%H%M).db && echo '✅ Backup saved to Desktop'",
     "postinstall": "prisma generate"
   },
   "dependencies": {
