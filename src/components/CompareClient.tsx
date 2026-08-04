@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Plus, X, Search, Sun, Moon, Clock, GripVertical, Share2, Check } from "lucide-react";
 import { LiveTime } from "@/components/LiveTime";
 
@@ -25,19 +25,23 @@ export function CompareClient({ initialCities = [] }: Props) {
   const [showSearch, setShowSearch] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const initialCitiesApplied = useRef(false);
 
   // Load saved cities after mount, unless we already have initialCities from URL
   useEffect(() => {
-    if (initialCities.length > 0) {
+    if (initialCities.length > 0 && !initialCitiesApplied.current) {
+      initialCitiesApplied.current = true;
       setMounted(true);
       return;
     }
+    if (initialCitiesApplied.current) return;
+    initialCitiesApplied.current = true;
     try {
       const saved = localStorage.getItem("compare_cities");
       if (saved) setCities(JSON.parse(saved));
     } catch {}
     setMounted(true);
-  }, [initialCities]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist to localStorage
   useEffect(() => {
