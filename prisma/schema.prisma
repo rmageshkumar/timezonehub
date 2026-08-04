@@ -111,9 +111,30 @@ model City {
   recentSearches RecentSearch[]
   seoPages      SEOPage[]
   seoPagesAsCity2 SEOPage[] @relation("city2_seo")
+  attractions   Attraction[]
 
   @@unique([name, countryId])
   @@map("cities")
+}
+
+// ==================== TOURIST ATTRACTIONS ====================
+model Attraction {
+  id            String   @id @default(cuid())
+  cityId        String
+  name          String   // e.g. "Imperial Palace", "Shibuya Crossing"
+  category      String?  // e.g. "Landmark", "Museum", "Park", "Shopping", "Temple"
+  description   String?  // Short description
+  distanceKm    Float?   // Approx distance from city center in km
+  travelTime    String?  // e.g. "15 min walk", "20 min by train"
+  area          String?  // e.g. "Chiyoda", "Shibuya"
+  suggestedDay  Int?     // Suggested day number for itinerary (1-5)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  city          City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("attractions")
 }
 
 model Timezone {

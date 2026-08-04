@@ -2,17 +2,18 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { MapPin, Clock, Globe, Sun, Moon, CalendarDays, Building2, Plane } from "lucide-react";
+import { MapPin, Clock, Globe, Sun, Moon, CalendarDays, Building2, Plane, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 interface Props {
-  params: { code: string };
+  params: Promise<{ code: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { code } = await params;
   const country = await prisma.country.findUnique({
-    where: { code: params.code.toUpperCase() },
+    where: { code: code.toUpperCase() },
   });
   if (!country) return { title: "Country Not Found" };
   return {
@@ -26,8 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CountryPage({ params }: Props) {
+  const { code } = await params;
   const country = await prisma.country.findUnique({
-    where: { code: params.code.toUpperCase() },
+    where: { code: code.toUpperCase() },
     include: {
       cities: {
         where: { isActive: true },
@@ -37,6 +39,29 @@ export default async function CountryPage({ params }: Props) {
   });
 
   if (!country) notFound();
+
+  // Popular countries: same continent neighbors first, then global
+  const sameContinentCountries = await prisma.country.findMany({
+    where: {
+      code: { not: country.code },
+      continent: country.continent,
+      isActive: true,
+    },
+    orderBy: { displayOrder: "asc" },
+    take: 6,
+  });
+
+  const otherContinentCountries = await prisma.country.findMany({
+    where: {
+      code: { not: country.code },
+      continent: { not: country.continent },
+      isActive: true,
+    },
+    orderBy: { displayOrder: "asc" },
+    take: 6,
+  });
+
+  const popularCountries = [...sameContinentCountries, ...otherContinentCountries].slice(0, 9);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,6 +120,39 @@ export default async function CountryPage({ params }: Props) {
               <CityTimeCard key={city.id} city={city} />
             ))}
           </div>
+
+          {/* Popular Countries */}
+          {popularCountries.length > 0 && (
+            <div className="mt-10">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-5 h-5 text-primary-500" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  Popular from {country.name}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {popularCountries.map((pc) => (
+                  <Link
+                    key={pc.id}
+                    href={`/country/${pc.code.toLowerCase()}`}
+                    className="glass rounded-xl p-4 card-hover group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{pc.flag}</span>
+                      <div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">
+                          {pc.name}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {pc.capital} · {pc.timezoneCount} timezone{pc.timezoneCount !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <Footer />

@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+  // Disable dev indicators in all environments (prevents leaking to production)
+  devIndicators: false,
   experimental: {
     useTypeScriptCli: true,
   },

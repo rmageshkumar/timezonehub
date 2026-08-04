@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { HelpCircle } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { FAQSchema } from "@/components/StructuredData";
 
 export const metadata: Metadata = {
   title: "FAQ - Frequently Asked Questions",
@@ -55,6 +56,7 @@ const faqs = [
 export default function FAQPage() {
   return (
     <div className="min-h-screen flex flex-col">
+      <FAQSchema faqs={faqs} />
       <Navbar />
       <main className="flex-1 py-12">
         <div className="max-w-3xl mx-auto px-4">

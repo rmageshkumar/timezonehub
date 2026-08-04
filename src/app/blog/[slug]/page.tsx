@@ -2,27 +2,48 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { BlogPostingSchema, BreadcrumbSchema } from "@/components/StructuredData";
+import { SocialShare } from "@/components/SocialShare";
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
+
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await prisma.blogPost.findUnique({ where: { slug: params.slug } });
+  const { slug } = await params;
+  const post = await prisma.blogPost.findUnique({ where: { slug } });
   if (!post) return { title: "Post Not Found" };
   return {
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
+    openGraph: {
+      title: post.seoTitle || post.title,
+      description: post.seoDescription || post.excerpt || "",
+      type: "article",
+      publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt?.toISOString(),
+      images: post.featuredImage ? [post.featuredImage] : [],
+      url: `${BASE_URL}/blog/${post.slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.seoTitle || post.title,
+      description: post.seoDescription || post.excerpt || "",
+      images: post.featuredImage ? [post.featuredImage] : [],
+    },
   };
 }
 
 export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params;
   const post = await prisma.blogPost.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: { category: true, comments: { where: { status: "approved" }, orderBy: { createdAt: "desc" } } },
   });
 
@@ -45,8 +66,19 @@ export default async function BlogPostPage({ params }: Props) {
     orderBy: { publishedAt: "desc" },
   });
 
+  const postUrl = `${BASE_URL}/blog/${post.slug}`;
+  const tags = post.tags ? (JSON.parse(post.tags) as string[]) : [];
+
   return (
     <div className="min-h-screen flex flex-col">
+      <BlogPostingSchema post={post} url={postUrl} />
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: BASE_URL },
+          { name: "Blog", url: `${BASE_URL}/blog` },
+          { name: post.title, url: postUrl },
+        ]}
+      />
       <Navbar />
       <main className="flex-1 py-12">
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,6 +122,13 @@ export default async function BlogPostPage({ params }: Props) {
               ))}
             </div>
           )}
+
+          {/* Social Share */}
+          <SocialShare
+            url={postUrl}
+            title={post.seoTitle || post.title}
+            description={post.seoDescription || post.excerpt || ""}
+          />
 
           {/* Comments */}
           <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
-import { MapPin, Clock, Globe, Plane } from "lucide-react";
+import { MapPin, Clock, Globe, Plane, TrendingUp, Landmark, Navigation } from "lucide-react";
 import { LiveTime } from "@/components/LiveTime";
 import { CityStatusBadges } from "@/components/CityStatusBadges";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -11,12 +11,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
   const city = await prisma.city.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { country: true },
   });
   if (!city) return { title: "City Not Found" };
@@ -27,12 +28,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CityPage({ params }: Props) {
+  const { id } = await params;
   const city = await prisma.city.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { country: true },
   });
 
   if (!city) notFound();
+
+  // Tourist attractions for this city
+  const attractions = await prisma.attraction.findMany({
+    where: { cityId: city.id },
+    orderBy: { displayOrder: "asc" },
+  });
 
   // Related cities in same country
   const relatedCities = await prisma.city.findMany({
@@ -43,6 +51,19 @@ export default async function CityPage({ params }: Props) {
     },
     orderBy: { population: "desc" },
     take: 6,
+  });
+
+  // Popular destinations: top international cities (exclude current country)
+  // This shows global hubs relevant to someone looking at this city
+  const popularDestinations = await prisma.city.findMany({
+    where: {
+      countryId: { not: city.countryId },
+      id: { not: city.id },
+      isActive: true,
+    },
+    orderBy: { population: "desc" },
+    take: 6,
+    include: { country: true },
   });
 
   return (
@@ -97,9 +118,94 @@ export default async function CityPage({ params }: Props) {
             <InfoCard icon={<MapPin />} label="Coordinates" value={city.latitude ? `${city.latitude.toFixed(2)}, ${city.longitude?.toFixed(2)}` : "N/A"} />
           </div>
 
-          {/* Related Cities */}
+          {/* Tourist Attractions */}
+          {attractions.length > 0 && (
+            <div className="mt-8 mb-12">
+              <div className="flex items-center gap-2 mb-4">
+                <Landmark className="w-5 h-5 text-primary-500" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  Popular Places in {city.name}
+                </h2>
+              </div>
+
+              {/* Area-based tabs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {attractions.map((attr) => (
+                  <div
+                    key={attr.id}
+                    className="glass rounded-xl p-4 hover:shadow-md transition-shadow group"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">
+                          {attr.name}
+                        </div>
+                        {attr.area && (
+                          <div className="text-xs text-slate-500 mt-0.5">{attr.area}</div>
+                        )}
+                      </div>
+                      {attr.category && (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400 whitespace-nowrap shrink-0">
+                          {attr.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {attr.description && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                        {attr.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      {attr.distanceKm != null && (
+                        <span className="flex items-center gap-1">
+                          <Navigation className="w-3 h-3" />
+                          {attr.distanceKm} km
+                        </span>
+                      )}
+                      {attr.travelTime && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {attr.travelTime}
+                        </span>
+                      )}
+                      {attr.suggestedDay && (
+                        <span className="ml-auto text-primary-500 font-medium">
+                          Day {attr.suggestedDay}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Suggested Itinerary */}
+              {attractions.some(a => a.suggestedDay) && (
+                <div className="mt-4 glass rounded-xl p-4">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    🗺️ Suggested {attractions.filter(a => a.suggestedDay).length >= 8 ? "5-Day" : "3-4 Day"} Itinerary
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from(new Set(attractions.filter(a => a.suggestedDay).map(a => a.suggestedDay!))).sort().map((day) => (
+                      <div key={day} className="flex-1 min-w-[140px]">
+                        <div className="text-xs font-bold text-primary-500 mb-1">Day {day}</div>
+                        <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                          {attractions.filter(a => a.suggestedDay === day).map(a => (
+                            <li key={a.id} className="truncate">• {a.name}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Related Cities - OTHER CITIES IN COUNTRY */}
           {relatedCities.length > 0 && (
-            <div>
+            <div className="mt-12">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
                 Other Cities in {city.country.name}
               </h2>
@@ -115,6 +221,43 @@ export default async function CityPage({ params }: Props) {
                       <div className="text-xs text-slate-500">{rc.timezone}</div>
                     </div>
                     <LiveTime timezone={rc.timezone} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Popular Destinations */}
+          {popularDestinations.length > 0 && (
+            <div className="mt-12">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUp className="w-5 h-5 text-primary-500" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  Popular from {city.name}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {popularDestinations.map((dest) => (
+                  <Link
+                    key={dest.id}
+                    href={`/city/${dest.id}`}
+                    className="glass rounded-xl p-4 card-hover group"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">{dest.country.flag}</span>
+                      <div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary-500 transition-colors">
+                          {dest.name}
+                        </div>
+                        <div className="text-xs text-slate-500">{dest.country.name}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-slate-400">{dest.timezone}</span>
+                      <span className="text-lg font-bold font-mono text-slate-700 dark:text-slate-300">
+                        <LiveTime timezone={dest.timezone} />
+                      </span>
+                    </div>
                   </Link>
                 ))}
               </div>
