@@ -36,11 +36,16 @@ export default async function CityPage({ params }: Props) {
 
   if (!city) notFound();
 
-  // Tourist attractions for this city
-  const attractions = await prisma.attraction.findMany({
-    where: { cityId: city.id },
-    orderBy: { displayOrder: "asc" },
-  });
+  // Tourist attractions for this city (gracefully handles missing table in prod)
+  let attractions: any[] = [];
+  try {
+    attractions = await prisma.attraction.findMany({
+      where: { cityId: city.id },
+      orderBy: { displayOrder: "asc" },
+    });
+  } catch {
+    // attractions table not yet pushed to production — silently fallback
+  }
 
   // Related cities in same country
   const relatedCities = await prisma.city.findMany({
