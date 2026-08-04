@@ -16,6 +16,17 @@ const nextConfig = {
   reactStrictMode: true,
   // Compress responses
   compress: true,
+  // Redirect www → non-www
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.clockhive.cc" }],
+        destination: "https://clockhive.cc/:path*",
+        permanent: true,
+      },
+    ];
+  },
   // Security headers
   async headers() {
     return [
