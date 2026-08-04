@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Plus, X, Search, Sun, Moon, Clock, GripVertical } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Plus, X, Search, Sun, Moon, Clock, GripVertical, Share2, Check } from "lucide-react";
 import { LiveTime } from "@/components/LiveTime";
 
 interface SelectedCity {
@@ -13,22 +13,31 @@ interface SelectedCity {
   gmtOffset: string;
 }
 
-export function CompareClient() {
+interface Props {
+  initialCities?: SelectedCity[];
+}
+
+export function CompareClient({ initialCities = [] }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [cities, setCities] = useState<SelectedCity[]>([]);
+  const [cities, setCities] = useState<SelectedCity[]>(initialCities);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  // Load saved cities after mount (prevents hydration mismatch)
+  // Load saved cities after mount, unless we already have initialCities from URL
   useEffect(() => {
+    if (initialCities.length > 0) {
+      setMounted(true);
+      return;
+    }
     try {
       const saved = localStorage.getItem("compare_cities");
       if (saved) setCities(JSON.parse(saved));
     } catch {}
     setMounted(true);
-  }, []);
+  }, [initialCities]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -61,6 +70,23 @@ export function CompareClient() {
 
   const removeCity = (id: string) => setCities(cities.filter(c => c.id !== id));
 
+  // Generate shareable URL from current cities
+  const getShareUrl = useCallback(() => {
+    if (cities.length === 0) return "";
+    const slugs = cities.map(c => c.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+    return `${window.location.origin}/compare/${slugs.join("/")}`;
+  }, [cities]);
+
+  const handleCopyLink = async () => {
+    const url = getShareUrl();
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
   // Drag and drop handlers
   const handleDragStart = (index: number) => {
     setDragIndex(index);
@@ -80,7 +106,7 @@ export function CompareClient() {
     <div className="space-y-6">
       {/* City Selector */}
       <div className="relative z-10 glass rounded-2xl p-6">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           {cities.map((city, index) => (
             <span
               key={city.id}
@@ -100,6 +126,27 @@ export function CompareClient() {
           <button onClick={() => setShowSearch(true)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border-2 border-dashed border-slate-300 dark:border-slate-600 text-slate-500 text-sm hover:border-primary-500 hover:text-primary-500">
             <Plus className="w-3.5 h-3.5" /> Add City
           </button>
+
+          {/* Copy Link Button */}
+          {cities.length > 0 && (
+            <button
+              onClick={handleCopyLink}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm hover:bg-primary-50 dark:hover:bg-primary-950 hover:text-primary-500 transition-colors ml-auto"
+              title="Copy shareable link"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-green-500" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-3.5 h-3.5" />
+                  Copy Link
+                </>
+              )}
+            </button>
+          )}
         </div>
 
         {/* Search Dropdown — positioned relative to the entire selector card */}
