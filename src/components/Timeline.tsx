@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin, Sun, Moon, Clock } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
+import { cityUrl } from "@/lib/utils";
 import Link from "next/link";
 
 interface CityTime {
@@ -56,7 +57,7 @@ export function Timeline({ cities }: { cities: CityTime[] }) {
           return (
             <Link
               key={city.id}
-              href={`/city/${city.id}`}
+              href={cityUrl(city.name)}
               className={`flex-shrink-0 w-40 p-3 rounded-xl transition-all hover:scale-105 cursor-pointer ${
                 isDay
                   ? "bg-gradient-to-b from-amber-50 to-blue-50 dark:from-amber-950/30 dark:to-blue-950/30 border border-amber-200/50 dark:border-amber-700/30"

@@ -37,9 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })));
 
-    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 500, select: { id: true, updatedAt: true } });
+    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 500, select: { id: true, name: true, updatedAt: true } });
     dynamicPages.push(...cities.map((c) => ({
-      url: `${baseUrl}/city/${c.id}`,
+      url: `${baseUrl}/city/${c.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`,
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,

@@ -31,6 +31,12 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: "/llms.txt",
+        headers: [
+          { key: "Content-Type", value: "text/markdown; charset=utf-8" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },

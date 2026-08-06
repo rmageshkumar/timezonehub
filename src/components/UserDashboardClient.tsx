@@ -7,6 +7,7 @@ import {
   User, Heart, Clock, Search, MapPin, LogOut, Settings,
   Star, Globe, Calendar, Trash2, BarChart3, ArrowRight,
 } from "lucide-react";
+import { cityUrl } from "@/lib/utils";
 import { LiveTime } from "@/components/LiveTime";
 import { formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -125,7 +126,7 @@ export function UserDashboardClient({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {favorites.map((fav) => (
                 <div key={fav.id} className="glass rounded-xl p-4 flex items-center justify-between card-hover">
-                  <Link href={`/city/${fav.city.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                  <Link href={cityUrl(fav.city.name)} className="flex items-center gap-3 flex-1 min-w-0">
                     <span className="text-2xl">{fav.city.country.flag}</span>
                     <div className="min-w-0">
                       <div className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">{fav.city.name}</div>
@@ -151,7 +152,7 @@ export function UserDashboardClient({
           ) : (
             <div className="space-y-2">
               {recentSearches.map((s) => (
-                <Link key={s.id} href={s.cityId ? `/city/${s.cityId}` : `/search?q=${encodeURIComponent(s.query)}`}
+                <Link key={s.id} href={s.cityId && s.cityName ? cityUrl(s.cityName) : `/search?q=${encodeURIComponent(s.query)}`}
                   className="glass rounded-xl p-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                   <Search className="w-4 h-4 text-slate-400" />
                   <span className="text-sm text-slate-700 dark:text-slate-300">{s.query}</span>

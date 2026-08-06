@@ -69,7 +69,7 @@ export function Navbar() {
               <Moon className="w-4 h-4 dark:hidden text-slate-600" />
             </button>
 
-            <Link href="/search" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <Link href="/search" aria-label="Search" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <Search className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             </Link>
 
@@ -137,6 +137,7 @@ export function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
               className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}

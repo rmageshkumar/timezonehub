@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Clock, MapPin, Sun, Moon, Briefcase, CalendarDays, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { cityUrl } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface CityData {
@@ -93,7 +94,7 @@ export function CountryCard({ country, expanded: defaultExpanded = false }: Coun
               {country.cities.map((city) => (
                 <Link
                   key={city.id}
-                  href={`/city/${city.id}`}
+                  href={cityUrl(city.name)}
                   className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <div className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect, permanentRedirect } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AdUnit } from "@/components/AdUnit";
@@ -8,7 +8,37 @@ import { LiveTime } from "@/components/LiveTime";
 import { CityStatusBadges } from "@/components/CityStatusBadges";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import Link from "next/link";
+import { cityUrl } from "@/lib/utils";
 import type { Metadata } from "next";
+
+/** Generate a URL-safe slug from a city name: "New York" → "new-york" */
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+/** Check if a string looks like a Prisma CUID (starts with 'c', ~25 chars) */
+function isCuid(str: string): boolean {
+  return /^c[a-z0-9]{24}$/.test(str);
+}
+
+/** Resolve a city by either CUID or slug */
+async function findCity(param: string) {
+  if (isCuid(param)) {
+    return prisma.city.findUnique({
+      where: { id: param },
+      include: { country: true },
+    });
+  }
+  // Lookup by slug (hyphenated city name)
+  return prisma.city.findFirst({
+    where: {
+      isActive: true,
+      name: { contains: param.replace(/-/g, " ") },
+    },
+    include: { country: true },
+    orderBy: { population: "desc" },
+  });
+}
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -16,10 +46,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const city = await prisma.city.findUnique({
-    where: { id },
-    include: { country: true },
-  });
+  const city = await findCity(id);
   if (!city) return { title: "City Not Found" };
   return {
     title: `${city.name} Time - Current Local Time in ${city.name}, ${city.country.name}`,
@@ -29,12 +56,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CityPage({ params }: Props) {
   const { id } = await params;
-  const city = await prisma.city.findUnique({
-    where: { id },
-    include: { country: true },
-  });
+  const city = await findCity(id);
 
   if (!city) notFound();
+
+  // Redirect CUID URLs to clean slug URLs for SEO
+  const citySlug = slugify(city.name);
+  if (isCuid(id) && citySlug !== id) {
+    permanentRedirect(`/city/${citySlug}`);
+  }
 
   // Tourist attractions for this city (gracefully handles missing table in prod)
   let attractions: any[] = [];
@@ -218,7 +248,7 @@ export default async function CityPage({ params }: Props) {
                 {relatedCities.map((rc) => (
                   <Link
                     key={rc.id}
-                    href={`/city/${rc.id}`}
+                    href={cityUrl(rc.name)}
                     className="glass rounded-xl p-4 card-hover flex items-center justify-between"
                   >
                     <div>
@@ -245,7 +275,7 @@ export default async function CityPage({ params }: Props) {
                 {popularDestinations.map((dest) => (
                   <Link
                     key={dest.id}
-                    href={`/city/${dest.id}`}
+                    href={cityUrl(dest.name)}
                     className="glass rounded-xl p-4 card-hover group"
                   >
                     <div className="flex items-center gap-3 mb-3">

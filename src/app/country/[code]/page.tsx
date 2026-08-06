@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MapPin, Clock, Globe, Sun, Moon, CalendarDays, Building2, Plane, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { cityUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
 interface Props {
@@ -173,7 +174,7 @@ function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string
 function CityTimeCard({ city }: { city: any }) {
   return (
     <Link
-      href={`/city/${city.id}`}
+      href={cityUrl(city.name)}
       className="glass rounded-xl p-4 card-hover flex items-center justify-between"
     >
       <div>

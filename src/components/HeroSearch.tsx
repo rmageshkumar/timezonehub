@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Globe, Clock, Plane, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { cityUrl } from "@/lib/utils";
 
 interface SearchResult {
   countries: Array<{ id: string; name: string; code: string; flag: string; timezoneCount: number }>;
@@ -133,7 +134,7 @@ export function HeroSearch() {
               {results.cities.map((c) => (
                 <Link
                   key={c.id}
-                  href={`/city/${c.id}`}
+                  href={cityUrl(c.name)}
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >

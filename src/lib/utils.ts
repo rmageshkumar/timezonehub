@@ -13,6 +13,32 @@ export function formatDate(date: Date | string): string {
   });
 }
 
+/** Generate a URL-safe slug from a city name: "New York" → "new-york" */
+export function citySlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
+/** Build a city page URL from city name: "/city/new-york" */
+export function cityUrl(name: string): string {
+  return `/city/${citySlug(name)}`;
+}
+
+/** Add IDs to H2/H3 tags in HTML for table of contents linking */
+export function addHeadingIds(html: string): string {
+  return html.replace(/<h([23])([^>]*)>(.*?)<\/h[23]>/gi, (_, level, attrs, text) => {
+    const cleanText = text.replace(/<[^>]*>/g, "").trim();
+    const id = cleanText.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    return `<h${level}${attrs} id="${id}">${text}</h${level}>`;
+  });
+}
+
+/** Estimate reading time from word count */
+export function readingTime(content: string): string {
+  const words = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  return `${minutes} min read`;
+}
+
 export function formatTime(date: Date | string, timezone?: string): string {
   const d = new Date(date);
   try {
