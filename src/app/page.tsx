@@ -52,9 +52,11 @@ export default async function HomePage() {
               The #1 Timezone Platform for Remote Teams
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+              <span className="gradient-text">ClockHive</span>
+              <br />
               <span className="text-slate-900 dark:text-slate-100">Every Timezone,</span>
               <br />
-              <span className="gradient-text">One Beautiful Platform</span>
+              <span className="text-slate-900 dark:text-slate-100">One Beautiful Platform</span>
             </h1>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
               Compare world times, plan meetings across time zones, and manage your global team

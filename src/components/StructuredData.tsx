@@ -51,6 +51,9 @@ export function WebSiteSchema() {
         name: "ClockHive",
         url: "https://clockhive.cc/",
         logo: "https://clockhive.cc/favicon.svg",
+        description:
+          "ClockHive is a beautiful timezone management platform for remote teams and global businesses. Compare times, plan meetings, track world clocks, and stay in sync.",
+        foundingDate: "2024",
         sameAs: [],
       },
     ],

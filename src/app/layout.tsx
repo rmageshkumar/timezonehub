@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | ClockHive",
   },
   description:
-    "Manage time zones for remote teams, developers, travelers, and global businesses. Compare cities, plan meetings, track world times, and schedule across timezones.",
+    "ClockHive helps remote teams, developers, travelers, and global businesses manage time zones. Compare cities, plan meetings, track world times, and schedule across timezones.",
   keywords: [
     "timezone", "world clock", "time converter", "meeting planner",
     "remote teams", "timezone management", "GMT", "UTC", "city time",
