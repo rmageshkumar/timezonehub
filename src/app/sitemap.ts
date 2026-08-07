@@ -46,10 +46,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })));
 
-    const categories = await prisma.blogCategory.findMany({ select: { slug: true, createdAt: true } });
+    const categories = await prisma.blogCategory.findMany({ select: { slug: true, updatedAt: true } });
     dynamicPages.push(...categories.map((cat) => ({
       url: `${baseUrl}/blog/category/${cat.slug}`,
-      lastModified: cat.createdAt,
+      lastModified: cat.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })));
