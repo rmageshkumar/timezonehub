@@ -12,6 +12,7 @@ dist/
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+prisma/*.ts
 
 # Environment
 .env

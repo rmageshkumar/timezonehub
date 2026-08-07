@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${baseUrl}/cookies`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
+    { url: `${baseUrl}/api-docs`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
   ];
 
   // Lazy-load prisma so build doesn't fail if DB is unreachable
@@ -37,12 +38,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })));
 
-    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 500, select: { id: true, name: true, updatedAt: true } });
+    const cities = await prisma.city.findMany({ where: { isActive: true }, take: 1000, select: { id: true, name: true, updatedAt: true } });
     dynamicPages.push(...cities.map((c) => ({
       url: `${baseUrl}/city/${c.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`,
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+    })));
+
+    const categories = await prisma.blogCategory.findMany({ select: { slug: true, createdAt: true } });
+    dynamicPages.push(...categories.map((cat) => ({
+      url: `${baseUrl}/blog/category/${cat.slug}`,
+      lastModified: cat.createdAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })));
 
     const posts = await prisma.blogPost.findMany({ where: { status: "published" }, select: { slug: true, updatedAt: true, publishedAt: true } });
