@@ -137,16 +137,7 @@ export default async function BlogPostPage({ params }: Props) {
 
             <div className="min-w-0 flex-1">
               <div
-                className="prose dark:prose-invert max-w-none
-                  prose-headings:scroll-mt-20 prose-headings:font-bold
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-base prose-p:leading-relaxed prose-p:text-slate-700 dark:prose-p:text-slate-300
-                  prose-strong:text-slate-900 dark:prose-strong:text-slate-100
-                  prose-a:text-primary-500 prose-a:no-underline hover:prose-a:underline
-                  prose-li:text-slate-700 dark:prose-li:text-slate-300
-                  prose-table:text-sm prose-th:bg-slate-50 dark:prose-th:bg-slate-800 prose-th:px-3 prose-th:py-2
-                  prose-td:px-3 prose-td:py-2 prose-td:border-t prose-td:border-slate-200 dark:prose-td:border-slate-700"
+                className="prose dark:prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: postContent }}
               />
             </div>

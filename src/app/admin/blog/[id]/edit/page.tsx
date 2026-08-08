@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Eye, Upload } from "lucide-react";
+import { useRouter, useParams } from "next/navigation";
+import { ArrowLeft, Save, Eye } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import TipTapEditor from "@/components/TipTapEditor";
@@ -12,9 +12,11 @@ interface BlogCategory {
   name: string;
 }
 
-export default function NewBlogPostPage() {
+export default function EditBlogPostPage() {
   const router = useRouter();
+  const params = useParams();
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [form, setForm] = useState({
@@ -33,11 +35,37 @@ export default function NewBlogPostPage() {
   });
 
   useEffect(() => {
-    fetch("/api/admin/blog/categories")
-      .then((r) => r.json())
-      .then((data) => setCategories(data.categories || []))
-      .catch(() => {});
-  }, []);
+    Promise.all([
+      fetch("/api/admin/blog/categories").then((r) => r.json()),
+      fetch(`/api/admin/blog/${params.id}`).then((r) => r.json()),
+    ])
+      .then(([categoriesData, postData]) => {
+        setCategories(categoriesData.categories || []);
+        if (postData.post) {
+          const post = postData.post;
+          setForm({
+            title: post.title || "",
+            slug: post.slug || "",
+            excerpt: post.excerpt || "",
+            content: post.content || "",
+            featuredImage: post.featuredImage || "",
+            categoryId: post.categoryId || "",
+            tags: post.tags?.join(", ") || "",
+            status: post.status || "draft",
+            scheduledAt: post.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 16) : "",
+            seoTitle: post.seoTitle || "",
+            seoDescription: post.seoDescription || "",
+            seoKeywords: post.seoKeywords || "",
+          });
+        }
+      })
+      .catch(() => {
+        toast.error("Failed to load post");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [params.id]);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => {
@@ -62,8 +90,8 @@ export default function NewBlogPostPage() {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/blog", {
-        method: "POST",
+      const res = await fetch(`/api/admin/blog/${params.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: form.title,
@@ -82,18 +110,28 @@ export default function NewBlogPostPage() {
       });
 
       if (res.ok) {
-        toast.success("Blog post created!");
+        toast.success("Blog post updated!");
         router.push("/admin/blog");
         router.refresh();
       } else {
         const err = await res.json();
-        toast.error(err.error || "Failed to create post");
+        toast.error(err.error || "Failed to update post");
       }
     } catch {
       toast.error("An error occurred");
     }
     setSaving(false);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-slate-500">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -103,8 +141,8 @@ export default function NewBlogPostPage() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">New Blog Post</h1>
-            <p className="text-sm text-slate-500 mt-1">Create and publish a new article</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Blog Post</h1>
+            <p className="text-sm text-slate-500 mt-1">Update your article</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -122,7 +160,7 @@ export default function NewBlogPostPage() {
             className="btn-primary flex items-center gap-2 text-sm"
           >
             <Save className="w-4 h-4" />
-            {saving ? "Saving..." : form.status === "published" ? "Publish" : "Save Draft"}
+            {saving ? "Saving..." : form.status === "published" ? "Update" : "Save Draft"}
           </button>
         </div>
       </div>
