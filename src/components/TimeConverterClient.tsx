@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Plus, X, Search, Sun, Moon, Clock, GripVertical } from "lucide-react";
+import { LiveTime } from "@/components/LiveTime";
 
 interface SelectedCity {
   id: string;
@@ -12,9 +13,14 @@ interface SelectedCity {
   gmtOffset: string;
 }
 
-export function TimeConverterClient() {
+interface Props {
+  initialCities?: SelectedCity[];
+}
+
+export function TimeConverterClient({ initialCities = [] }: Props) {
   const [mounted, setMounted] = useState(false);
-  const [cities, setCities] = useState<SelectedCity[]>([]);
+  const [cities, setCities] = useState<SelectedCity[]>(initialCities);
+  const initialCitiesApplied = React.useRef(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -29,14 +35,21 @@ export function TimeConverterClient() {
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Load saved cities after mount (prevents hydration mismatch)
+  // Load saved cities after mount, unless we already have initialCities from URL
   useEffect(() => {
+    if (initialCities.length > 0 && !initialCitiesApplied.current) {
+      initialCitiesApplied.current = true;
+      setMounted(true);
+      return;
+    }
+    if (initialCitiesApplied.current) return;
+    initialCitiesApplied.current = true;
     try {
       const saved = localStorage.getItem("converter_cities");
       if (saved) setCities(JSON.parse(saved));
     } catch {}
     setMounted(true);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist to localStorage
   useEffect(() => {
@@ -248,6 +261,35 @@ export function TimeConverterClient() {
         )}
       </div>
 
+      {/* Current Times Display */}
+      {cities.length >= 2 && mounted && (
+        <div className="glass rounded-2xl p-6">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4">
+            <Clock className="w-5 h-5 inline mr-2 text-primary-500" />
+            Current Times
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cities.map((city) => (
+              <div
+                key={city.id}
+                className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center"
+              >
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-xl">{city.countryFlag}</span>
+                  <span className="font-medium text-slate-900 dark:text-slate-100">
+                    {city.name}
+                  </span>
+                </div>
+                <div className="text-2xl font-bold font-mono text-primary-600 dark:text-primary-400">
+                  <LiveTime timezone={city.timezone} />
+                </div>
+                <div className="text-xs text-slate-500 mt-1">{city.gmtOffset}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Time Grid */}
       {cities.length >= 2 && (
         <div className="glass rounded-2xl p-6 overflow-x-auto">
@@ -307,6 +349,11 @@ export function TimeConverterClient() {
                     <div className="text-xs text-slate-400">
                       {city.gmtOffset}
                     </div>
+                    {mounted && (
+                      <div className="text-xs font-mono text-primary-600 dark:text-primary-400 font-semibold">
+                        <LiveTime timezone={city.timezone} />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -405,6 +452,11 @@ export function TimeConverterClient() {
                     {formatHourDisplay(startLocal)} – {formatHourDisplay(endLocal)}
                   </div>
                   <div className="text-xs text-slate-500 mt-1">{city.gmtOffset}</div>
+                  {mounted && (
+                    <div className="text-xs font-mono text-slate-600 dark:text-slate-400 mt-2">
+                      Current: <LiveTime timezone={city.timezone} />
+                    </div>
+                  )}
                 </div>
               );
             })}
