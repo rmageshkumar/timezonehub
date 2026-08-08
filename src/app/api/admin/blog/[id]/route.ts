@@ -4,8 +4,9 @@ import { auth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -13,7 +14,7 @@ export async function GET(
 
   try {
     const post = await prisma.blogPost.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { category: true },
     });
 
@@ -35,8 +36,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -58,7 +60,7 @@ export async function PUT(
     // Check slug uniqueness (excluding current post)
     if (slug) {
       const existing = await prisma.blogPost.findFirst({
-        where: { slug, id: { not: params.id } },
+        where: { slug, id: { not: id } },
       });
       if (existing) {
         slug = `${slug}-${Date.now().toString(36)}`;
@@ -66,7 +68,7 @@ export async function PUT(
     }
 
     const post = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: body.title,
         slug: slug || undefined,
@@ -101,8 +103,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -110,14 +113,14 @@ export async function DELETE(
 
   try {
     await prisma.blogPost.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     await prisma.auditLog.create({
       data: {
         userId: (session.user as any)?.id,
         action: "blog_deleted",
-        details: JSON.stringify({ id: params.id }),
+        details: JSON.stringify({ id }),
       },
     });
 
