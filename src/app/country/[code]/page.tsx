@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { MapPin, Clock, Globe, Sun, Moon, CalendarDays, Building2, Plane, TrendingUp } from "lucide-react";
+import { MapPin, Clock, Globe, Sun, Moon, CalendarDays, Building2, Plane, TrendingUp, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import { cityUrl } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -35,6 +35,10 @@ export default async function CountryPage({ params }: Props) {
       cities: {
         where: { isActive: true },
         orderBy: { population: "desc" },
+      },
+      publicHolidays: {
+        where: { isActive: true },
+        orderBy: { date: "asc" },
       },
     },
   });
@@ -112,6 +116,59 @@ export default async function CountryPage({ params }: Props) {
             </div>
           </div>
 
+          {/* Public Holidays */}
+          {country.publicHolidays.length > 0 && (
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-4">
+                <PartyPopper className="w-5 h-5 text-primary-500" />
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  Public Holidays in {country.name}
+                </h2>
+              </div>
+              <div className="glass rounded-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-slate-700">
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Holiday</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Local Name</th>
+                        <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {country.publicHolidays.map((holiday) => (
+                        <tr key={holiday.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <span className="font-mono text-sm text-slate-900 dark:text-slate-100">
+                              {formatHolidayDate(holiday.date)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                              {holiday.name}
+                            </span>
+                            {holiday.description && (
+                              <p className="text-xs text-slate-500 mt-0.5">{holiday.description}</p>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                              {holiday.localName || "—"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <HolidayTypeBadge type={holiday.type} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Cities List */}
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
             Cities in {country.name}
@@ -186,6 +243,34 @@ function CityTimeCard({ city }: { city: any }) {
       </div>
       <LiveTime timezone={city.timezone} />
     </Link>
+  );
+}
+
+// Helper: format MM-DD date string to a readable format
+function formatHolidayDate(dateStr: string): string {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const [month, day] = dateStr.split("-");
+  const m = parseInt(month, 10);
+  const d = parseInt(day, 10);
+  if (isNaN(m) || isNaN(d)) return dateStr;
+  return `${months[m - 1]} ${d}`;
+}
+
+// Helper: badge for holiday type
+function HolidayTypeBadge({ type }: { type: string }) {
+  const colorMap: Record<string, string> = {
+    public: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    national: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    observance: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    bank: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    school: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    religious: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  };
+  const color = colorMap[type] || "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400";
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium capitalize ${color}`}>
+      {type}
+    </span>
   );
 }
 

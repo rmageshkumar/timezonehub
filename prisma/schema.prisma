@@ -85,6 +85,7 @@ model Country {
 
   cities        City[]
   seoPages      SEOPage[]
+  publicHolidays PublicHoliday[]
 
   @@map("countries")
 }
@@ -135,6 +136,26 @@ model Attraction {
   city          City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
 
   @@map("attractions")
+}
+
+model PublicHoliday {
+  id          String   @id @default(cuid())
+  countryId   String
+  name        String   // e.g. "New Year's Day", "Christmas Day"
+  localName   String?  // Local name in native language
+  date        String   // Format: "MM-DD" for fixed dates, "2024-01-01" for year-specific
+  type        String   @default("public") // public, observance, bank, school
+  isRecurring Boolean  @default(true) // true for recurring holidays like Christmas
+  description String?  // Brief description
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, name, date], name: "countryId_name_date")
+  @@map("public_holidays")
 }
 
 model Timezone {
