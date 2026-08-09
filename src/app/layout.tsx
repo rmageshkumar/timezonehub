@@ -39,9 +39,9 @@ export const metadata: Metadata = {
     description: "The most beautiful timezone management platform for remote teams and global businesses. Compare times, plan meetings, and stay in sync.",
     images: [
       {
-        url: `${BASE_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
+        url: `${BASE_URL}/clockhive-cover-facebook.png`,
+        width: 1640,
+        height: 624,
         alt: "ClockHive - Beautiful Timezone Management",
       },
     ],
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     creator: "@clockhive",
     title: "ClockHive - Beautiful Timezone Management",
     description: "Compare times, plan meetings, and stay in sync with the most intuitive timezone platform.",
-    images: [`${BASE_URL}/og-image.png`],
+    images: [`${BASE_URL}/clockhive-cover-twitter.png`],
   },
   robots: {
     index: true,
