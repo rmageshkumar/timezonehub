@@ -54,7 +54,10 @@ export function WebSiteSchema() {
         description:
           "ClockHive is a beautiful timezone management platform for remote teams and global businesses. Compare times, plan meetings, track world clocks, and stay in sync.",
         foundingDate: "2024",
-        sameAs: [],
+        sameAs: [
+          "https://www.linkedin.com/company/clockhive-cc",
+          "https://www.facebook.com/clockhive.cc",
+        ],
       },
     ],
   };
