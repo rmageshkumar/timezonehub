@@ -170,7 +170,7 @@ export default async function CountryPage({ params }: Props) {
           )}
 
           {/* Cities List */}
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-8 mb-4">
             Cities in {country.name}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
