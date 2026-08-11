@@ -17,7 +17,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run generate-sitemap && next build",
+    "generate-sitemap": "tsx scripts/generate-sitemap.ts",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
