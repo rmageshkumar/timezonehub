@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="340" viewBox="0 0 1000 340">
+  <rect width="1000" height="340" fill="#fffdf5"/>
+  <text x="500" y="55" font-size="30" font-family="Segoe UI,Roboto,Arial,sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Spring forward, fall back</text>
+  <g font-family="Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <rect x="80" y="100" width="380" height="120" rx="14" fill="#fef3c7"/>
+    <text x="270" y="150" font-size="30" font-weight="700" fill="#92400e">☀️ Spring forward</text>
+    <text x="270" y="185" font-size="18" fill="#78350f">+1 hour — clocks go from 02:00 to 03:00</text>
+    <text x="270" y="210" font-size="16" fill="#a16207">We lose an hour of sleep</text>
+    <rect x="540" y="100" width="380" height="120" rx="14" fill="#e0f2fe"/>
+    <text x="730" y="150" font-size="30" font-weight="700" fill="#075985">🌙 Fall back</text>
+    <text x="730" y="185" font-size="18" fill="#0c4a6e">-1 hour — clocks go from 02:00 back to 01:00</text>
+    <text x="730" y="210" font-size="16" fill="#0369a1">We gain an hour of sleep</text>
+  </g>
+  <text x="500" y="300" font-size="20" font-family="Segoe UI,Arial,sans-serif" fill="#64748b" text-anchor="middle">Offsets change twice a year for most of Europe &amp; North America</text>
+</svg>

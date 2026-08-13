@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300">
+  <rect width="1000" height="300" fill="#fff7ed"/>
+  <text x="500" y="55" font-size="30" font-family="Segoe UI,Roboto,Arial,sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">Backlog → Sprint Backlog</text>
+  <g font-family="Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <rect x="80" y="110" width="320" height="120" rx="14" fill="#ffedd5"/>
+    <text x="240" y="150" font-size="24" font-weight="700" fill="#9a3412">📥 Product Backlog</text>
+    <text x="240" y="182" font-size="18" fill="#c2410c">everything we might build</text>
+    <text x="240" y="210" font-size="16" fill="#ea580c">(prioritised, not committed)</text>
+    <rect x="600" y="110" width="320" height="120" rx="14" fill="#dcfce7"/>
+    <text x="760" y="150" font-size="24" font-weight="700" fill="#166534">✅ Sprint Backlog</text>
+    <text x="760" y="182" font-size="18" fill="#15803d">what we commit to this sprint</text>
+    <text x="760" y="210" font-size="16" fill="#16a34a">(pulled in at planning)</text>
+  </g>
+  <text x="500" y="255" font-size="26" fill="#64748b" text-anchor="middle">← the team picks →</text>
+  <path d="M 410 170 L 590 170" stroke="#0f172a" stroke-width="6" fill="none" marker-end="url(#arr)"/>
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0f172a"/></marker></defs>
+</svg>
