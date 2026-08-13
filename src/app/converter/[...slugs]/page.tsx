@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   return {
-    title: `Convert ${fromTz} to ${toTz} Time | ClockHive`,
+    title: `Convert ${fromTz} to ${toTz} Time`,
     description: `Instantly convert ${fromTz} time to ${toTz}. See current time and convert any hour between ${fromTz} and ${toTz} timezones.`,
   };
 }

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { ClockHiveLogo } from "@/components/ClockHiveLogo";
-import { Menu, Search, Sun, Moon, X, Globe, BarChart3, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play, Clock } from "lucide-react";
+import { Menu, Search, Sun, Moon, X, Globe, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play, Clock, Briefcase } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,7 @@ export function Navbar() {
     { href: "/", label: "Home", icon: Clock },
     { href: "/countries", label: "Countries", icon: Globe },
     { href: "/converter", label: "Converter", icon: ArrowLeftRight },
-    { href: "/compare", label: "Compare", icon: BarChart3 },
+    { href: "/business-time", label: "Business Hours", icon: Briefcase },
     { href: "/ai-scheduler", label: "AI Scheduler", icon: Sparkles },
     { href: "/meeting-planner", label: "Meeting Planner", icon: Clock },
     { href: "/blog", label: "Blog", icon: Globe },

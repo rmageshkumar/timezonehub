@@ -5,7 +5,7 @@ import { CountryCard } from "@/components/CountryCard";
 import { AdUnit } from "@/components/AdUnit";
 import { HeroSearch } from "@/components/HeroSearch";
 import { Timeline } from "@/components/Timeline";
-import { Globe, ArrowRight, Search, Zap, Users, TrendingUp, ArrowLeftRight, Calendar, Sparkles, Play, ShieldCheck, Star } from "lucide-react";
+import { Globe, ArrowRight, Search, Zap, Users, TrendingUp, ArrowLeftRight, Calendar, Sparkles, Play, ShieldCheck, Star, Briefcase } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -213,6 +213,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ToolCard icon={<Globe className="w-5 h-5" />} title="Country Explorer" desc="Browse 126+ countries with accurate timezone data" href="/countries" />
             <ToolCard icon={<ArrowLeftRight className="w-5 h-5" />} title="Time Converter" desc="Convert times between any two cities instantly" href="/converter" />
+            <ToolCard icon={<Briefcase className="w-5 h-5" />} title="Business Hours" desc="Find the common window when everyone is at work" href="/business-time" />
             <ToolCard icon={<Calendar className="w-5 h-5" />} title="Meeting Planner" desc="Find overlapping working hours across multiple cities" href="/meeting-planner" />
             <ToolCard icon={<Sparkles className="w-5 h-5" />} title="AI Scheduler" desc="Let AI find the best meeting time with smart scoring" href="/ai-scheduler" />
             <ToolCard icon={<Play className="w-5 h-5" />} title="Scrum Poker" desc="Agile estimation tool for distributed development teams" href="/scrum-poker" />

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slugs } = await params;
   const names = slugs.map(s => s.replace(/-/g, " ")).join(", ");
   return {
-    title: `Compare ${names} Timezones | ClockHive`,
+    title: `Compare ${names} Timezones`,
     description: `Compare current times in ${names}. See working hours overlap and time differences instantly.`,
   };
 }

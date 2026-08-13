@@ -32,7 +32,7 @@ export function Footer() {
             <h3 className="font-semibold text-sm mb-4 text-slate-900 dark:text-slate-100">Quick Links</h3>
             <ul className="space-y-2">
               <li><Link href="/countries" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Countries</Link></li>
-              <li><Link href="/compare" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Time Comparison</Link></li>
+              <li><Link href="/business-time" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Compare</Link></li>
               <li><Link href="/meeting-planner" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Meeting Planner</Link></li>
               <li><Link href="/search" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Search</Link></li>
             </ul>
