@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const countries = await prisma.country.findMany({ where: { isActive: true }, select: { code: true, updatedAt: true } });
     dynamicPages.push(...countries.map((c) => ({
-      url: `${baseUrl}/country/${c.code}`,
+      url: `${baseUrl}/country/${c.code.toLowerCase()}`,
       lastModified: c.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,

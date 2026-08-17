@@ -7,6 +7,8 @@ import Link from "next/link";
 import { cityUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
+
 interface Props {
   params: Promise<{ code: string }>;
 }
@@ -15,14 +17,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { code } = await params;
   const country = await prisma.country.findUnique({
     where: { code: code.toUpperCase() },
+    include: {
+      cities: {
+        where: { isActive: true },
+        orderBy: { population: "desc" },
+        take: 1,
+      },
+    },
   });
   if (!country) return { title: "Country Not Found" };
+
+  const primaryCity = country.cities[0];
+  const tzLabel = primaryCity
+    ? `${primaryCity.timezone.replace(/_/g, " ")} (UTC${primaryCity.gmtOffset})`
+    : `${country.timezoneCount} timezone${country.timezoneCount !== 1 ? "s" : ""}`;
+  const hasDST = country.cities.some((c) => c.dstOffset);
+
   return {
-    title: `${country.name} Time - Current Time in ${country.name}`,
-    description: `Current time in ${country.name} (${country.code}). View all ${country.timezoneCount} time zones in ${country.name}.`,
+    title: `${country.name} Time Now - Time Zone & Current Time`,
+    description: `Current time in ${country.name} (${country.code}). Time zone: ${tzLabel}${hasDST ? ". Observes daylight saving time (DST)" : ", no daylight saving time"}. See every city's live time and public holidays.`,
+    alternates: {
+      canonical: `${BASE_URL}/country/${country.code.toLowerCase()}`,
+    },
     openGraph: {
-      title: `${country.name} Time - ClockHive`,
-      description: `Check the current time in ${country.name}`,
+      title: `${country.name} Time Now - ClockHive`,
+      description: `Current time and time zone info for ${country.name}. Check live city times and whether ${country.name} observes daylight saving time.`,
     },
   };
 }
@@ -44,6 +63,37 @@ export default async function CountryPage({ params }: Props) {
   });
 
   if (!country) notFound();
+
+  // Timezone / DST facts powering the SEO content sections below
+  const primaryCity = country.cities[0];
+  const hasDST = country.cities.some((c) => c.dstOffset);
+  const timezoneNames = [...new Set(country.cities.map((c) => c.timezone))];
+  const tzDisplay = primaryCity ? primaryCity.timezone.replace(/_/g, " ") : "";
+  const offsetDisplay = primaryCity?.gmtOffset ? `UTC${primaryCity.gmtOffset}` : "";
+  const countryIntro =
+    country.timezoneCount === 1 && primaryCity
+      ? `${country.name} is in a single time zone — ${tzDisplay} (${offsetDisplay}). The country ${hasDST ? "observes daylight saving time, setting clocks forward in spring and back in autumn." : "does not observe daylight saving time, so local time stays the same all year round."}`
+      : `${country.name} spans ${country.timezoneCount} time zones. Use the live clocks on this page to see the current time in each major city.`;
+  const faqs = [
+    {
+      q: `What time zone is ${country.name} in?`,
+      a: `${country.name} uses ${tzDisplay || "a fixed time zone"} (${offsetDisplay || "UTC"})${hasDST ? " and observes daylight saving time (DST) in the summer months." : " and does not observe daylight saving time — the UTC offset stays constant all year."}`,
+    },
+    {
+      q: `What time is it in ${country.name} right now?`,
+      a: `The current time in ${primaryCity?.name || country.capital || country.name} is shown live above, and every city card below shows its own live time.`,
+    },
+    {
+      q: `Does ${country.name} observe daylight saving time (DST)?`,
+      a: hasDST
+        ? `Yes — ${country.name} moves its clocks forward in spring and back in autumn (DST is observed on ${tzDisplay}).`
+        : `No — ${country.name} does not currently observe daylight saving time, so the time never changes throughout the year.`,
+    },
+    {
+      q: `How many time zones does ${country.name} have?`,
+      a: `${country.name} has ${country.timezoneCount} time zone${country.timezoneCount !== 1 ? "s" : ""}${timezoneNames.length > 1 ? ` — ${timezoneNames.join(", ")}` : ` (${tzDisplay})`}.`,
+    },
+  ];
 
   // Popular countries: same continent neighbors first, then global
   const sameContinentCountries = await prisma.country.findMany({
@@ -79,7 +129,7 @@ export default async function CountryPage({ params }: Props) {
               <span className="text-5xl">{country.flag}</span>
               <div>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                  {country.name}
+                  Time in {country.name}
                 </h1>
                 <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
                   <span className="font-mono">{country.code}</span>
@@ -114,6 +164,46 @@ export default async function CountryPage({ params }: Props) {
                 value={country.population ? `${(country.population / 1000000).toFixed(1)}M` : "N/A"}
               />
             </div>
+          </div>
+
+          {/* Time Zone & SEO content */}
+          <div className="glass rounded-2xl p-6 mb-8">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
+              Time Zone in {country.name}
+            </h2>
+
+            {primaryCity && (
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                <div>
+                  <div className="font-semibold text-slate-900 dark:text-slate-100">
+                    {primaryCity.name} · Current Time
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {primaryCity.timezone} · {offsetDisplay}
+                  </div>
+                </div>
+                <div className="text-3xl font-bold font-mono text-slate-900 dark:text-slate-100">
+                  <LiveTime timezone={primaryCity.timezone} />
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <InfoCard icon={<Clock className="w-5 h-5" />} label="Time Zone" value={tzDisplay || "—"} />
+              <InfoCard icon={<Globe className="w-5 h-5" />} label="UTC Offset" value={offsetDisplay || "—"} />
+              <InfoCard
+                icon={hasDST ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                label="Daylight Saving"
+                value={hasDST ? "Observed" : "None"}
+              />
+              <InfoCard
+                icon={<Building2 className="w-5 h-5" />}
+                label="Timezone Count"
+                value={`${country.timezoneCount}`}
+              />
+            </div>
+
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{countryIntro}</p>
           </div>
 
           {/* Public Holidays */}
@@ -177,6 +267,38 @@ export default async function CountryPage({ params }: Props) {
             {country.cities.map((city) => (
               <CityTimeCard key={city.id} city={city} />
             ))}
+          </div>
+
+          {/* FAQ */}
+          <div className="mt-10">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-5 h-5 text-primary-500" />
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                Frequently Asked Questions
+              </h2>
+            </div>
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <div key={i} className="glass rounded-xl p-4">
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{faq.q}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: faqs.map((f) => ({
+                    "@type": "Question",
+                    name: f.q,
+                    acceptedAnswer: { "@type": "Answer", text: f.a },
+                  })),
+                }),
+              }}
+            />
           </div>
 
           {/* Popular Countries */}

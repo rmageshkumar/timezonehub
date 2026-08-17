@@ -119,7 +119,7 @@ async function main() {
     });
     for (const c of countries) {
       entries.push({
-        url: `${BASE_URL}/country/${c.code}`,
+        url: `${BASE_URL}/country/${c.code.toLowerCase()}`,
         lastModified: c.updatedAt,
         changeFrequency: "weekly",
         priority: 0.8,

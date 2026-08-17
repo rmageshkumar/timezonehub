@@ -27,9 +27,6 @@ export const metadata: Metadata = {
   authors: [{ name: "ClockHive", url: BASE_URL }],
   creator: "ClockHive",
   publisher: "ClockHive",
-  alternates: {
-    canonical: BASE_URL,
-  },
   openGraph: {
     type: "website",
     locale: "en_US",

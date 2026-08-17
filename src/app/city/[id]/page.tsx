@@ -11,6 +11,8 @@ import Link from "next/link";
 import { cityUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
+
 /** Generate a URL-safe slug from a city name: "New York" → "new-york" */
 function slugify(name: string): string {
   return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -21,7 +23,7 @@ function isCuid(str: string): boolean {
   return /^c[a-z0-9]{24}$/.test(str);
 }
 
-/** Resolve a city by either CUID or slug */
+/** Resolve a city by CUID, IATA airport code, alias, or name slug */
 async function findCity(param: string) {
   if (isCuid(param)) {
     return prisma.city.findUnique({
@@ -29,12 +31,34 @@ async function findCity(param: string) {
       include: { country: true },
     });
   }
-  // Lookup by slug (hyphenated city name)
-  return prisma.city.findFirst({
+
+  const slug = param.toLowerCase();
+  const nameSlug = slug.replace(/-/g, " ");
+
+  // IATA airport code (e.g. /city/gva → Geneva). Only treat exact 3-letter
+  // slugs as codes so we never hijack short city-name slugs.
+  if (/^[a-z]{3}$/.test(slug)) {
+    const byCode = await prisma.city.findFirst({
+      where: { isActive: true, airportCode: slug.toUpperCase() },
+      include: { country: true },
+    });
+    if (byCode) return byCode;
+  }
+
+  // Lookup by name slug (hyphenated city name) — preserves existing behaviour
+  const byName = await prisma.city.findFirst({
     where: {
       isActive: true,
-      name: { contains: param.replace(/-/g, " ") },
+      name: { contains: nameSlug },
     },
+    include: { country: true },
+    orderBy: { population: "desc" },
+  });
+  if (byName) return byName;
+
+  // Lookup by alias (e.g. /city/denpasar → Bali, /city/bombay → Mumbai)
+  return prisma.city.findFirst({
+    where: { isActive: true, aliases: { contains: slug } },
     include: { country: true },
     orderBy: { population: "desc" },
   });
@@ -48,9 +72,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const city = await findCity(id);
   if (!city) return { title: "City Not Found" };
+  // Surface the IATA airport code (e.g. "Geneva (GVA) Time") so top-10
+  // airport-code queries ("gva time", "jed time") convert to clicks.
+  const airport = city.airportCode ? ` (${city.airportCode})` : "";
   return {
-    title: `${city.name} Time - Current Local Time in ${city.name}, ${city.country.name}`,
-    description: `Current local time in ${city.name}, ${city.country.name} (${city.timezone}). Airport code: ${city.airportCode || "N/A"}.`,
+    title: `${city.name}${airport} Time - Current Local Time in ${city.name}, ${city.country.name}`,
+    description: `Current local time in ${city.name}, ${city.country.name} (${city.timezone})${city.airportCode ? `. Airport code: ${city.airportCode}` : ""}.`,
+    alternates: {
+      canonical: `${BASE_URL}/city/${slugify(city.name)}`,
+    },
   };
 }
 
@@ -60,9 +90,9 @@ export default async function CityPage({ params }: Props) {
 
   if (!city) notFound();
 
-  // Redirect CUID URLs to clean slug URLs for SEO
+  // Redirect CUID / airport-code / alias URLs to the canonical slug URL for SEO
   const citySlug = slugify(city.name);
-  if (isCuid(id) && citySlug !== id) {
+  if (id !== citySlug) {
     permanentRedirect(`/city/${citySlug}`);
   }
 

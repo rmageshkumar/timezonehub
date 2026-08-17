@@ -7,6 +7,8 @@ import { TimeConverterClient } from "@/components/TimeConverterClient";
 import { ArrowLeftRight } from "lucide-react";
 import type { Metadata } from "next";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
+
 interface Props {
   params: Promise<{ slugs: string[] }>;
 }
@@ -44,6 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Convert ${fromTz} to ${toTz} Time`,
     description: `Instantly convert ${fromTz} time to ${toTz}. See current time and convert any hour between ${fromTz} and ${toTz} timezones.`,
+    alternates: {
+      canonical: `${BASE_URL}/converter/${fromTz.toLowerCase()}-to-${toTz.toLowerCase()}`,
+    },
   };
 }
 

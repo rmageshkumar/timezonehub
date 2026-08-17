@@ -25,6 +25,17 @@ const nextConfig = {
         destination: "https://clockhive.cc/:path*",
         permanent: true,
       },
+      // Consolidate Compare into the Business Hours tool
+      {
+        source: "/compare",
+        destination: "/business-time",
+        permanent: true,
+      },
+      {
+        source: "/compare/:path*",
+        destination: "/business-time/:path*",
+        permanent: true,
+      },
     ];
   },
   // Security headers
@@ -40,13 +51,20 @@ const nextConfig = {
         source: "/sitemap.xml",
         headers: [
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
-          { key: "Cache-Control", value: "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400" },
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+          },
         ],
       },
       {
         source: "/_next/static/:path*",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
         ],
       },
       {

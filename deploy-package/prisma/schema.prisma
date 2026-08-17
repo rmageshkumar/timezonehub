@@ -1,0 +1,494 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== AUTH ====================
+model User {
+  id                      String    @id @default(cuid())
+  name                    String?
+  email                   String    @unique
+  emailVerified           DateTime?
+  verificationToken       String?   @unique
+  verificationTokenExpires DateTime?
+  password                String?
+  image                   String?
+  role                    String    @default("user") // super_admin, admin, editor, moderator, analyst, user, premium
+  status                  String    @default("active") // active, suspended, deleted
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  favorites     UserFavorite[]
+  recentSearches RecentSearch[]
+  savedComparisons SavedComparison[]
+  loginHistory  LoginHistory[]
+  feedbacks     Feedback[]
+  contactMessages ContactMessage[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// ==================== TIMEZONE DATA ====================
+model Country {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  code          String   @unique // ISO 3166-1 alpha-2
+  flag          String   // emoji flag
+  capital       String?
+  continent     String?
+  population    Int?
+  timezoneCount Int      @default(0)
+  displayOrder  Int      @default(0)
+  dstRules      String?  // JSON: DST rules
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  cities        City[]
+  seoPages      SEOPage[]
+  publicHolidays PublicHoliday[]
+
+  @@map("countries")
+}
+
+model City {
+  id            String   @id @default(cuid())
+  name          String
+  countryId     String
+  timezone      String   // e.g. "Australia/Sydney"
+  gmtOffset     String   // e.g. "+10:00"
+  dstOffset     String?  // e.g. "+11:00"
+  airportCode   String?  // e.g. "SYD"
+  aliases       String?  // JSON array of aliases
+  latitude      Float?
+  longitude     Float?
+  population    Int?
+  isActive      Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  country       Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  favorites     UserFavorite[]
+  recentSearches RecentSearch[]
+  seoPages      SEOPage[]
+  seoPagesAsCity2 SEOPage[] @relation("city2_seo")
+  attractions   Attraction[]
+
+  @@unique([name, countryId])
+  @@map("cities")
+}
+
+// ==================== TOURIST ATTRACTIONS ====================
+model Attraction {
+  id            String   @id @default(cuid())
+  cityId        String
+  name          String   // e.g. "Imperial Palace", "Shibuya Crossing"
+  category      String?  // e.g. "Landmark", "Museum", "Park", "Shopping", "Temple"
+  description   String?  // Short description
+  distanceKm    Float?   // Approx distance from city center in km
+  travelTime    String?  // e.g. "15 min walk", "20 min by train"
+  area          String?  // e.g. "Chiyoda", "Shibuya"
+  suggestedDay  Int?     // Suggested day number for itinerary (1-5)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  city          City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("attractions")
+}
+
+model PublicHoliday {
+  id          String   @id @default(cuid())
+  countryId   String
+  name        String   // e.g. "New Year's Day", "Christmas Day"
+  localName   String?  // Local name in native language
+  date        String   // Format: "MM-DD" for fixed dates, "2024-01-01" for year-specific
+  type        String   @default("public") // public, observance, bank, school
+  isRecurring Boolean  @default(true) // true for recurring holidays like Christmas
+  description String?  // Brief description
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, name, date], name: "countryId_name_date")
+  @@map("public_holidays")
+}
+
+model Timezone {
+  id        String @id @default(cuid())
+  name      String @unique // e.g. "Australia/Sydney"
+  offset    String // e.g. "+10:00"
+  dstOffset String?
+  abbr      String? // e.g. "AEST"
+
+  @@map("timezones")
+}
+
+// ==================== USER FEATURES ====================
+model UserFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  cityId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cityId])
+  @@map("user_favorites")
+}
+
+model RecentSearch {
+  id        String   @id @default(cuid())
+  userId    String?
+  query     String
+  cityId    String?
+  type      String   @default("search") // search, country, city, timezone
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  city City? @relation(fields: [cityId], references: [id], onDelete: SetNull)
+
+  @@map("recent_searches")
+}
+
+model SavedComparison {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  cities    String   // JSON: array of city IDs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("saved_comparisons")
+}
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  ip        String?
+  userAgent String?
+  device    String?
+  browser   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("login_history")
+}
+
+// ==================== ADVERTISEMENTS ====================
+model Advertisement {
+  id            String    @id @default(cuid())
+  name          String
+  type          String    // html, image, javascript, google_adsense, affiliate, direct_html, custom_image
+  placement     String    // header_banner, sidebar_300x250, sidebar_300x600, between_cards, footer_banner, mobile_sticky, full_width_timeline
+  content       String?   // HTML/JS/ad code
+  imageUrl      String?
+  linkUrl       String?
+  priority      Int       @default(0)
+  weight        Int       @default(1)
+  status        String    @default("active") // active, paused, draft
+  startDate     DateTime?
+  endDate       DateTime?
+  targetCountries String? // JSON array of country codes
+  targetDevices String?   // JSON: ["desktop","tablet","mobile"]
+  targetHours   String?   // JSON: { start: "08:00", end: "20:00" }
+  impressions   Int       @default(0)
+  clicks        Int       @default(0)
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("advertisements")
+}
+
+model AdClick {
+  id        String   @id @default(cuid())
+  adId      String
+  userId    String?
+  ip        String?
+  country   String?
+  device    String?
+  createdAt DateTime @default(now())
+
+  @@map("ad_clicks")
+}
+
+// ==================== BLOG ====================
+model BlogPost {
+  id            String    @id @default(cuid())
+  title         String
+  slug          String    @unique
+  excerpt       String?
+  content       String
+  featuredImage String?
+  status        String    @default("draft") // draft, published, scheduled
+  scheduledAt   DateTime?
+  publishedAt   DateTime?
+  categoryId    String?
+  tags          String?   // JSON array
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String?
+  authorId      String?
+  viewCount     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  category      BlogCategory? @relation(fields: [categoryId], references: [id])
+  comments      BlogComment[]
+
+  @@map("blog_posts")
+}
+
+model BlogCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  posts       BlogPost[]
+
+  @@map("blog_categories")
+}
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorName String
+  authorEmail String?
+  content   String
+  status    String   @default("pending") // pending, approved, spam
+  createdAt DateTime @default(now())
+
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("blog_comments")
+}
+
+// ==================== COMMUNICATION ====================
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String   // suggestion, bug_report, feature_request
+  title     String
+  content   String
+  status    String   @default("open") // open, in_progress, closed
+  priority  String   @default("medium") // low, medium, high, critical
+  assignedTo String?
+  adminReply String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("feedbacks")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  message   String
+  status    String   @default("unread") // unread, read, replied
+  adminReply String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("contact_messages")
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  status    String   @default("active") // active, unsubscribed
+  source    String?  // signup_form, popup, blog, etc.
+  createdAt DateTime @default(now())
+
+  @@map("newsletter_subscribers")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  title     String
+  message   String
+  type      String   @default("info") // info, warning, success, error, maintenance, update, feature
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ==================== SEO ====================
+model SEOPage {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  type          String   // city_time, country_time, city_to_city, city_vs_city, timezone_info
+  title         String
+  description   String
+  ogTitle       String?
+  ogDescription String?
+  ogImage       String?
+  twitterCard   String   @default("summary_large_image")
+  canonicalUrl  String?
+  jsonLd        String?  // JSON-LD structured data
+  cityId        String?
+  countryId     String?
+  city2Id       String?
+  isIndexed     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  city          City?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  country       Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  city2         City?    @relation("city2_seo", fields: [city2Id], references: [id], onDelete: SetNull)
+
+  @@map("seo_pages")
+}
+
+// ==================== ANALYTICS ====================
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String   // pageview, search, city_view, country_view, comparison, ad_click, ad_impression
+  data      String?  // JSON payload
+  userId    String?
+  sessionId String?
+  ip        String?
+  country   String?
+  device    String?
+  browser   String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@map("analytics_events")
+}
+
+// ==================== SETTINGS ====================
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String // JSON value
+  group String @default("general") // general, theme, seo, ads, email, integrations
+
+  @@map("settings")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String   // google_maps, openweather, analytics, adsense, smtp, cloudflare, mailchimp
+  keyValue  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // user_deleted, advertisement_edited, theme_updated, blog_published, settings_changed, etc.
+  details   String?  // JSON details
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+// ==================== THEME ====================
+model ThemeConfig {
+  id           String @id @default("default")
+  primaryColor String @default("#3b82f6")
+  accentColor  String @default("#d946ef")
+  fontFamily   String @default("Inter")
+  borderRadius String @default("0.5rem")
+  logoUrl      String?
+  faviconUrl   String?
+  footerText   String?
+  customCss    String?
+
+  @@map("theme_config")
+}
+
+// ==================== HOMEPAGE BUILDER ====================
+model HomepageSection {
+  id        String  @id @default(cuid())
+  section   String  @unique // hero_banner, search, timeline, meeting_planner, featured_countries, news, ads
+  enabled   Boolean @default(true)
+  config    String? // JSON configuration
+  order     Int     @default(0)
+
+  @@map("homepage_sections")
+}
+
+// ==================== SCRUM POKER ====================
+model ScrumPokerRoom {
+  id          String   @id
+  name        String
+  adminId     String   @default("")
+  players     String   @default("[]")
+  revealed    Boolean  @default(false)
+  storyTitle  String   @default("")
+  storyDescription String @default("")
+  lastActivity DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@map("scrum_poker_rooms")
+}

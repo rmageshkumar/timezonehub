@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360">
+  <rect width="1000" height="360" fill="#f8fafc"/>
+  <text x="500" y="50" font-size="30" font-family="Segoe UI,Roboto,Arial,sans-serif" font-weight="700" fill="#0f172a" text-anchor="middle">The same instant, different local times</text>
+  <line x1="60" y1="120" x2="940" y2="120" stroke="#cbd5e1" stroke-width="4"/>
+  <line x1="500" y1="90" x2="500" y2="320" stroke="#ef4444" stroke-width="3" stroke-dasharray="8 8"/>
+  <text x="500" y="78" font-size="20" font-family="Segoe UI,Arial,sans-serif" fill="#ef4444" text-anchor="middle" font-weight="700">UTC 12:00</text>
+  <g font-family="Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <rect x="60" y="150" width="300" height="80" rx="12" fill="#eef2ff"/>
+    <text x="210" y="190" font-size="26" font-weight="700" fill="#1e3a8a">04:00</text>
+    <text x="210" y="218" font-size="18" fill="#64748b">New York (UTC-8)</text>
+    <rect x="640" y="150" width="300" height="80" rx="12" fill="#f0fdf4"/>
+    <text x="790" y="190" font-size="26" font-weight="700" fill="#166534">17:30</text>
+    <text x="790" y="218" font-size="18" fill="#64748b">Chennai (UTC+5:30)</text>
+  </g>
+  <g font-family="Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <rect x="60" y="260" width="300" height="80" rx="12" fill="#fff7ed"/>
+    <text x="210" y="300" font-size="26" font-weight="700" fill="#9a3412">21:00</text>
+    <text x="210" y="328" font-size="18" fill="#64748b">Sydney (UTC+10)</text>
+    <rect x="640" y="260" width="300" height="80" rx="12" fill="#faf5ff"/>
+    <text x="790" y="300" font-size="26" font-weight="700" fill="#6b21a8">01:00</text>
+    <text x="790" y="328" font-size="18" fill="#64748b">Auckland (UTC+13)</text>
+  </g>
+</svg>
