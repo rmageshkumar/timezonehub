@@ -21,21 +21,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await prisma.blogPost.findUnique({ where: { slug } });
   if (!post) return { title: "Post Not Found" };
+
+  // Root layout applies title.template = "%s | ClockHive". Some seoTitles in the
+  // DB already contain the "| ClockHive" suffix (older seed data), which renders
+  // as "… | ClockHive | ClockHive". Strip it here so the template appends it once.
+  const cleanTitle = (post.seoTitle || post.title)
+    .replace(/\s*\|\s*ClockHive\s*$/i, "")
+    .trim();
+
+  const postUrl = `${BASE_URL}/blog/${post.slug}`;
+
   return {
-    title: post.seoTitle || post.title,
+    title: cleanTitle,
     description: post.seoDescription || post.excerpt,
+    alternates: {
+      canonical: postUrl,
+    },
     openGraph: {
-      title: post.seoTitle || post.title,
+      title: cleanTitle,
       description: post.seoDescription || post.excerpt || "",
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt?.toISOString(),
       images: post.featuredImage ? [post.featuredImage] : [],
-      url: `${BASE_URL}/blog/${post.slug}`,
+      url: postUrl,
     },
     twitter: {
       card: "summary_large_image",
-      title: post.seoTitle || post.title,
+      title: cleanTitle,
       description: post.seoDescription || post.excerpt || "",
       images: post.featuredImage ? [post.featuredImage] : [],
     },
