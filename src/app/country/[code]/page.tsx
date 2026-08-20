@@ -7,6 +7,7 @@ import Link from "next/link";
 import { cityUrl } from "@/lib/utils";
 import { CountryLiveClock } from "@/components/CountryLiveClock";
 import { CountryComparisonWidget } from "@/components/CountryComparisonWidget";
+import { computeComparisonRows, getOffsetMinutes, formatDiffLong } from "@/lib/timezone-compare";
 import type { Metadata } from "next";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://clockhive.cc";
@@ -19,30 +20,6 @@ const COUNTRY_ABBR: Record<string, string> = {
   US: "USA",
   GB: "UK",
 };
-
-/** Current UTC offset in minutes for a timezone at a given instant (handles DST). */
-function getOffsetMinutes(timeZone: string, now = new Date()): number | null {
-  try {
-    const dtf = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" });
-    const name = dtf.formatToParts(now).find((p) => p.type === "timeZoneName")?.value || "";
-    const m = name.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
-    if (!m) return 0;
-    const sign = m[1] === "+" ? 1 : -1;
-    return sign * (parseInt(m[2], 10) * 60 + parseInt(m[3] || "0", 10));
-  } catch {
-    return null;
-  }
-}
-
-/** "2 hours 30 minutes ahead of" from a minute difference. */
-function formatTimeDiffMinutes(diff: number): string {
-  const abs = Math.abs(diff);
-  const h = Math.floor(abs / 60);
-  const m = abs % 60;
-  const dir = diff > 0 ? "ahead of" : "behind";
-  const unit = h > 0 && m > 0 ? `${h} hours ${m} minutes` : h > 0 ? `${h} hours` : `${m} minutes`;
-  return `${unit} ${dir}`;
-}
 
 interface Props {
   params: Promise<{ code: string }>;
@@ -108,20 +85,23 @@ export default async function CountryPage({ params }: Props) {
   const tzDisplay = primaryCity ? primaryCity.timezone.replace(/_/g, " ") : "";
   const offsetDisplay = primaryCity?.gmtOffset ? `UTC${primaryCity.gmtOffset}` : "";
   const abbr = COUNTRY_ABBR[country.code];
+  // Server-computed rows for the "X vs the world" + business-hours widget — sent
+  // to the client so the tables are present in the SSR HTML (crawlable/SEO).
+  const comparisonRows = primaryCity ? computeComparisonRows(primaryCity.timezone, new Date()) : [];
   const countryIntro =
     country.timezoneCount === 1 && primaryCity
       ? `${country.name} is in a single time zone — ${tzDisplay} (${offsetDisplay}). The country ${hasDST ? "observes daylight saving time, setting clocks forward in spring and back in autumn." : "does not observe daylight saving time, so local time stays the same all year round."}`
       : `${country.name} spans ${country.timezoneCount} time zones. Use the live clocks on this page to see the current time in each major city.`;
 
   // "Time difference vs India" FAQ — computed server-side with current offsets.
-  const primaryOffset = primaryCity ? getOffsetMinutes(primaryCity.timezone) : null;
-  const indiaOffset = getOffsetMinutes("Asia/Kolkata");
+  const primaryOffset = primaryCity ? getOffsetMinutes(primaryCity.timezone, new Date()) : null;
+  const indiaOffset = getOffsetMinutes("Asia/Kolkata", new Date());
   const indiaDiffFaq =
     primaryOffset !== null && indiaOffset !== null
       ? [
           {
             q: `What is the time difference between ${country.name} and India?`,
-            a: `${country.name} (${offsetDisplay}) is ${formatTimeDiffMinutes(primaryOffset - indiaOffset)} India (IST, UTC+5:30). Use the comparison table above to see the live difference.`,
+            a: `${country.name} (${offsetDisplay}) is ${formatDiffLong(primaryOffset - indiaOffset)} India (IST, UTC+5:30). Use the comparison table above to see the live difference.`,
           },
         ]
       : [];
@@ -373,6 +353,7 @@ export default async function CountryPage({ params }: Props) {
               timezone={primaryCity.timezone}
               cityName={primaryCity.name}
               countryName={country.name}
+              initialRows={comparisonRows}
             />
           )}
 

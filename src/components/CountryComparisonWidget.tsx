@@ -2,118 +2,39 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-interface RefCity {
-  name: string;
-  country: string;
-  timezone: string;
-}
-
-const REFERENCE_CITIES: RefCity[] = [
-  { name: "New York", country: "United States", timezone: "America/New_York" },
-  { name: "London", country: "United Kingdom", timezone: "Europe/London" },
-  { name: "Dubai", country: "United Arab Emirates", timezone: "Asia/Dubai" },
-  { name: "Mumbai", country: "India", timezone: "Asia/Kolkata" },
-  { name: "Singapore", country: "Singapore", timezone: "Asia/Singapore" },
-  { name: "Tokyo", country: "Japan", timezone: "Asia/Tokyo" },
-  { name: "Sydney", country: "Australia", timezone: "Australia/Sydney" },
-];
-
-/** Current UTC offset in minutes for a timezone at a given instant (handles DST). */
-function getOffsetMinutes(timeZone: string, now: Date): number | null {
-  try {
-    const dtf = new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: "longOffset" });
-    const name = dtf.formatToParts(now).find((p) => p.type === "timeZoneName")?.value || "";
-    const m = name.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
-    if (!m) return 0;
-    const sign = m[1] === "+" ? 1 : -1;
-    return sign * (parseInt(m[2], 10) * 60 + parseInt(m[3] || "0", 10));
-  } catch {
-    return null;
-  }
-}
-
-function formatOffset(offset: number): string {
-  const sign = offset >= 0 ? "+" : "−";
-  const abs = Math.abs(offset);
-  const h = Math.floor(abs / 60);
-  const m = abs % 60;
-  return `UTC${sign}${h}${m ? ":" + String(m).padStart(2, "0") : ""}`;
-}
-
-function formatDiff(diff: number): string {
-  const abs = Math.abs(diff);
-  const h = Math.floor(abs / 60);
-  const m = abs % 60;
-  const dir = diff > 0 ? "ahead of" : "behind";
-  const unit = h > 0 && m > 0 ? `${h}h ${m}m` : h > 0 ? `${h}h` : `${m}m`;
-  return `${unit} ${dir}`;
-}
-
-/** Local time in `targetTz` at `sourceHour:00` local in the source timezone. */
-function localTimeInSourceTz(
-  targetTz: string,
-  now: Date,
-  sourceHour: number,
-  sourceOffsetMinutes: number
-): string {
-  const utcMinutesOfDay = sourceHour * 60 - sourceOffsetMinutes;
-  const base = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    0,
-    utcMinutesOfDay
-  );
-  return new Date(base).toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: targetTz,
-  });
-}
+import { computeComparisonRows, formatDiff, formatOffset, type ComparisonRow } from "@/lib/timezone-compare";
 
 /**
- * "X vs the world" + business-hours tables for a country page. Client component
- * so DST-aware offsets and live times are computed in the browser.
+ * "X vs the world" + business-hours tables for a country page.
+ *
+ * SSR-friendly: the server pre-computes `initialRows` and passes them in, so the
+ * tables exist in the initial HTML and are visible to search engines. After
+ * mount, rows are recomputed every 10s so times stay live in the browser. Because
+ * `initialRows` comes from the server render, first client paint matches the
+ * server HTML (no hydration mismatch).
  */
 export function CountryComparisonWidget({
   timezone,
   cityName,
   countryName,
+  initialRows,
 }: {
   timezone: string;
   cityName: string;
   countryName: string;
+  initialRows: ComparisonRow[];
 }) {
-  const [now, setNow] = useState<Date | null>(null);
+  const [rows, setRows] = useState<ComparisonRow[]>(initialRows);
 
   useEffect(() => {
-    const update = () => setNow(new Date());
+    const update = () => setRows(computeComparisonRows(timezone, new Date()));
     update();
     const id = setInterval(update, 10000);
     return () => clearInterval(id);
-  }, []);
+  }, [timezone]);
 
-  // Reserve space until mounted to avoid layout shift / hydration mismatch.
-  if (!now) return <div className="glass rounded-2xl p-6 min-h-[220px]" aria-hidden />;
-
-  const baseOffset = getOffsetMinutes(timezone, now);
-  if (baseOffset === null) return null;
-
-  const rows = REFERENCE_CITIES.map((rc) => {
-    const off = getOffsetMinutes(rc.timezone, now);
-    const diff = off === null ? null : baseOffset - off;
-    const local = new Date(now).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: rc.timezone,
-    });
-    const openAt = localTimeInSourceTz(rc.timezone, now, 9, baseOffset);
-    const closeAt = localTimeInSourceTz(rc.timezone, now, 17, baseOffset);
-    return { ...rc, off, diff, local, openAt, closeAt };
-  });
+  // Server couldn't compute rows (invalid timezone) → hide the section entirely.
+  if (rows.length === 0) return null;
 
   return (
     <div className="glass rounded-2xl p-6 mb-8">
