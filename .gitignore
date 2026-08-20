@@ -12,7 +12,10 @@ dist/
 # Prisma
 prisma/*.db
 prisma/*.db-journal
-prisma/*.ts
+*.sql
+*.md
+*.sh
+deploy-hostinger.sh
 
 # Environment
 .env
