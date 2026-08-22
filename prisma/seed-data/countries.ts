@@ -12,12 +12,12 @@ export async function seedCountries(prisma: PrismaClient) {
       timezoneCount: 9,
       displayOrder: 1,
       cities: [
-        { name: "New York", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "JFK", latitude: 40.7128, longitude: -74.006, population: 8804190 },
-        { name: "Los Angeles", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "LAX", latitude: 34.0522, longitude: -118.2437, population: 3898747 },
-        { name: "Chicago", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "ORD", latitude: 41.8781, longitude: -87.6298, population: 2746388 },
-        { name: "Denver", timezone: "America/Denver", gmtOffset: "-07:00", dstOffset: "-06:00", airportCode: "DEN", latitude: 39.7392, longitude: -104.9903, population: 715522 },
-        { name: "Anchorage", timezone: "America/Anchorage", gmtOffset: "-09:00", dstOffset: "-08:00", airportCode: "ANC", latitude: 61.2181, longitude: -149.9003, population: 291247 },
-        { name: "Honolulu", timezone: "Pacific/Honolulu", gmtOffset: "-10:00", dstOffset: null, airportCode: "HNL", latitude: 21.3069, longitude: -157.8583, population: 345064 },
+        { name: "New York", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "JFK", latitude: 40.7128, longitude: -74.006, population: 8804190, region: "New York" },
+        { name: "Los Angeles", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "LAX", latitude: 34.0522, longitude: -118.2437, population: 3898747, region: "California" },
+        { name: "Chicago", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "ORD", latitude: 41.8781, longitude: -87.6298, population: 2746388, region: "Illinois" },
+        { name: "Denver", timezone: "America/Denver", gmtOffset: "-07:00", dstOffset: "-06:00", airportCode: "DEN", latitude: 39.7392, longitude: -104.9903, population: 715522, region: "Colorado" },
+        { name: "Anchorage", timezone: "America/Anchorage", gmtOffset: "-09:00", dstOffset: "-08:00", airportCode: "ANC", latitude: 61.2181, longitude: -149.9003, population: 291247, region: "Alaska" },
+        { name: "Honolulu", timezone: "Pacific/Honolulu", gmtOffset: "-10:00", dstOffset: null, airportCode: "HNL", latitude: 21.3069, longitude: -157.8583, population: 345064, region: "Hawaii" },
       ],
     },
     {
@@ -64,7 +64,9 @@ export async function seedCountries(prisma: PrismaClient) {
       cities: [
         { name: "Sydney", timezone: "Australia/Sydney", gmtOffset: "+10:00", dstOffset: "+11:00", airportCode: "SYD", latitude: -33.8688, longitude: 151.2093, population: 5312000 },
         { name: "Melbourne", timezone: "Australia/Melbourne", gmtOffset: "+10:00", dstOffset: "+11:00", airportCode: "MEL", latitude: -37.8136, longitude: 144.9631, population: 5078000 },
-        { name: "Brisbane", timezone: "Australia/Brisbane", gmtOffset: "+10:00", dstOffset: null, airportCode: "BNE", latitude: -27.4698, longitude: 153.0251, population: 2568000 },
+        { name: "Brisbane", timezone: "Australia/Brisbane", gmtOffset: "+10:00", dstOffset: null, airportCode: "BNE", latitude: -27.4698, longitude: 153.0251, population: 2568000, seoFaqs: JSON.stringify([
+          { q: "What is BNE time?", a: "BNE is the IATA airport code for Brisbane. Brisbane is on Australian Eastern Standard Time (Australia/Brisbane, UTC+10) and does not observe daylight saving time." },
+        ]) },
         { name: "Perth", timezone: "Australia/Perth", gmtOffset: "+08:00", dstOffset: null, airportCode: "PER", latitude: -31.9505, longitude: 115.8605, population: 2093000 },
         { name: "Adelaide", timezone: "Australia/Adelaide", gmtOffset: "+09:30", dstOffset: "+10:30", airportCode: "ADL", latitude: -34.9285, longitude: 138.6007, population: 1376000 },
       ],
@@ -269,7 +271,9 @@ export async function seedCountries(prisma: PrismaClient) {
       displayOrder: 19,
       cities: [
         { name: "Zurich", timezone: "Europe/Zurich", gmtOffset: "+01:00", dstOffset: "+02:00", airportCode: "ZRH", latitude: 47.3769, longitude: 8.5417, population: 415000 },
-        { name: "Geneva", timezone: "Europe/Zurich", gmtOffset: "+01:00", dstOffset: "+02:00", airportCode: "GVA", latitude: 46.2044, longitude: 6.1432, population: 203000 },
+        { name: "Geneva", timezone: "Europe/Zurich", gmtOffset: "+01:00", dstOffset: "+02:00", airportCode: "GVA", latitude: 46.2044, longitude: 6.1432, population: 203000, seoFaqs: JSON.stringify([
+          { q: "What is GVA time?", a: "GVA is the IATA airport code for Geneva. Geneva is on Central European Time (Europe/Zurich, UTC+1, UTC+2 during daylight saving time)." },
+        ]) },
       ],
     },
     {
@@ -474,7 +478,9 @@ export async function seedCountries(prisma: PrismaClient) {
       population: 35000000, timezoneCount: 1, displayOrder: 41,
       cities: [
         { name: "Riyadh", timezone: "Asia/Riyadh", gmtOffset: "+03:00", dstOffset: null, airportCode: "RUH", latitude: 24.7136, longitude: 46.6753, population: 7676000 },
-        { name: "Jeddah", timezone: "Asia/Riyadh", gmtOffset: "+03:00", dstOffset: null, airportCode: "JED", latitude: 21.4858, longitude: 39.1925, population: 4600000 },
+        { name: "Jeddah", timezone: "Asia/Riyadh", gmtOffset: "+03:00", dstOffset: null, airportCode: "JED", latitude: 21.4858, longitude: 39.1925, population: 4600000, seoFaqs: JSON.stringify([
+          { q: "What is JED time?", a: "JED is the IATA airport code for Jeddah. Jeddah is on Arabian Standard Time (Asia/Riyadh, UTC+3) and does not observe daylight saving time." },
+        ]) },
       ],
     },
     {
@@ -737,14 +743,17 @@ export async function seedCountries(prisma: PrismaClient) {
     // ========== MORE MAJOR CITIES FOR EXISTING COUNTRIES ==========
     // US West: San Francisco, Seattle
     { name: "United States", code: "US", flag: "🇺🇸", capital: "Washington, D.C.", continent: "North America", population: 331900000, timezoneCount: 9, displayOrder: 1, cities: [
-      { name: "San Francisco", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "SFO", latitude: 37.7749, longitude: -122.4194, population: 808437 },
-      { name: "Seattle", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "SEA", latitude: 47.6062, longitude: -122.3321, population: 737015 },
-      { name: "Houston", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "IAH", latitude: 29.7604, longitude: -95.3698, population: 2304580 },
-      { name: "Phoenix", timezone: "America/Phoenix", gmtOffset: "-07:00", dstOffset: null, airportCode: "PHX", latitude: 33.4484, longitude: -112.074, population: 1608139 },
-      { name: "Miami", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "MIA", latitude: 25.7617, longitude: -80.1918, population: 442241 },
-      { name: "Washington DC", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "DCA", latitude: 38.9072, longitude: -77.0369, population: 689545 },
-      { name: "Boston", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "BOS", latitude: 42.3601, longitude: -71.0589, population: 675647 },
-      { name: "Dallas", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "DFW", latitude: 32.7767, longitude: -96.797, population: 1304379 },
+      { name: "San Francisco", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "SFO", latitude: 37.7749, longitude: -122.4194, population: 808437, region: "California" },
+      { name: "Seattle", timezone: "America/Los_Angeles", gmtOffset: "-08:00", dstOffset: "-07:00", airportCode: "SEA", latitude: 47.6062, longitude: -122.3321, population: 737015, region: "Washington" },
+      { name: "Houston", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "IAH", latitude: 29.7604, longitude: -95.3698, population: 2304580, region: "Texas" },
+      { name: "Phoenix", timezone: "America/Phoenix", gmtOffset: "-07:00", dstOffset: null, airportCode: "PHX", latitude: 33.4484, longitude: -112.074, population: 1608139, region: "Arizona" },
+      { name: "Miami", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "MIA", latitude: 25.7617, longitude: -80.1918, population: 442241, region: "Florida" },
+      { name: "Washington DC", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "DCA", latitude: 38.9072, longitude: -77.0369, population: 689545, region: "District of Columbia", seoFaqs: JSON.stringify([
+        { q: "What is DC time?", a: "\"DC time\" is shorthand for the local time in Washington DC, the capital of the United States. Washington DC uses Eastern Time (America/New_York, UTC-5, UTC-4 during daylight saving time)." },
+        { q: "Is Washington DC on Eastern Time?", a: "Yes — Washington DC is in the Eastern Time Zone (America/New_York). Its offset is UTC-5, moving to UTC-4 during daylight saving time." },
+      ]) },
+      { name: "Boston", timezone: "America/New_York", gmtOffset: "-05:00", dstOffset: "-04:00", airportCode: "BOS", latitude: 42.3601, longitude: -71.0589, population: 675647, region: "Massachusetts" },
+      { name: "Dallas", timezone: "America/Chicago", gmtOffset: "-06:00", dstOffset: "-05:00", airportCode: "DFW", latitude: 32.7767, longitude: -96.797, population: 1304379, region: "Texas" },
     ]},
     // India: Hyderabad, Ahmedabad, Pune
     { name: "India", code: "IN", flag: "🇮🇳", capital: "New Delhi", continent: "Asia", population: 1408000000, timezoneCount: 1, displayOrder: 3, cities: [
@@ -830,7 +839,9 @@ export async function seedCountries(prisma: PrismaClient) {
     // South Korea: Busan
     { name: "South Korea", code: "KR", flag: "🇰🇷", capital: "Seoul", continent: "Asia", population: 51780000, timezoneCount: 1, displayOrder: 14, cities: [
       { name: "Busan", timezone: "Asia/Seoul", gmtOffset: "+09:00", dstOffset: null, airportCode: "PUS", latitude: 35.1796, longitude: 129.0756, population: 3411000 },
-      { name: "Incheon", timezone: "Asia/Seoul", gmtOffset: "+09:00", dstOffset: null, airportCode: "ICN", latitude: 37.4563, longitude: 126.7052, population: 2923000 },
+      { name: "Incheon", timezone: "Asia/Seoul", gmtOffset: "+09:00", dstOffset: null, airportCode: "ICN", latitude: 37.4563, longitude: 126.7052, population: 2923000, seoFaqs: JSON.stringify([
+        { q: "What is ICN time?", a: "ICN is the IATA airport code for Incheon. Incheon is on Korea Standard Time (Asia/Seoul, UTC+9) and does not observe daylight saving time." },
+      ]) },
     ]},
     // UK: Birmingham, Glasgow
     { name: "United Kingdom", code: "GB", flag: "🇬🇧", capital: "London", continent: "Europe", population: 67330000, timezoneCount: 1, displayOrder: 2, cities: [
