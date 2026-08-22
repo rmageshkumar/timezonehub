@@ -99,6 +99,8 @@ model City {
   dstOffset     String?  // e.g. "+11:00"
   airportCode   String?  // e.g. "SYD"
   aliases       String?  // JSON array of aliases
+  region        String?  // e.g. "Texas" / "California" — sub-national region for SEO titles
+  seoFaqs       String?  // JSON array of {q, a} — city-specific FAQs (e.g. "What is DC time?")
   latitude      Float?
   longitude     Float?
   population    Int?
