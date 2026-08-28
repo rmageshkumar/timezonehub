@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { ClockHiveLogo } from "@/components/ClockHiveLogo";
-import { Menu, Search, Sun, Moon, X, Globe, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play, Clock, Briefcase } from "lucide-react";
+import { Menu, Search, Sun, Moon, X, Globe, Settings, ArrowLeftRight, Sparkles, User, LogOut, Heart, LayoutDashboard, Calendar, Play, Clock, Briefcase, Puzzle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 

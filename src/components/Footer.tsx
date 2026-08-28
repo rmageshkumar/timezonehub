@@ -35,6 +35,7 @@ export function Footer() {
               <li><Link href="/business-time" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Compare</Link></li>
               <li><Link href="/meeting-planner" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Meeting Planner</Link></li>
               <li><Link href="/search" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Search</Link></li>
+              <li><Link href="/games/reaction" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary-500 transition-colors">Games</Link></li>
             </ul>
           </div>
 

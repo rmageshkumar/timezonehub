@@ -45,6 +45,8 @@ const config: Config = {
         "fade-in": "fadeIn 0.5s ease-in-out",
         "slide-up": "slideUp 0.3s ease-out",
         "glow": "glow 2s ease-in-out infinite alternate",
+        "pop-in": "popIn 0.2s ease-out",
+        "merge": "merge 0.2s ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -58,6 +60,14 @@ const config: Config = {
         glow: {
           "0%": { boxShadow: "0 0 5px rgba(59,130,246,0.5)" },
           "100%": { boxShadow: "0 0 20px rgba(59,130,246,0.8)" },
+        },
+        popIn: {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        merge: {
+          "0%": { transform: "scale(1.2)" },
+          "100%": { transform: "scale(1)" },
         },
       },
     },
