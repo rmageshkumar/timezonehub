@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Zap, Puzzle, Brain, Clock, Rocket } from "lucide-react";
+import { Zap, Puzzle, Brain, Clock, Rocket, Gamepad2, Orbit } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -64,6 +64,24 @@ const games = [
     icon: Brain,
     color: "from-purple-500 to-pink-500",
     href: "/games/word",
+    difficulty: "Medium",
+    replay: "⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Orbit Rescue",
+    description: "Pilot through an asteroid field, collect glowing crystals, and protect your ship's hull.",
+    icon: Orbit,
+    color: "from-cyan-500 to-indigo-500",
+    href: "/games/orbit-rescue",
+    difficulty: "Medium",
+    replay: "⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Platform Dash",
+    description: "Run, jump, collect coins, stomp enemies, and reach the flag in a colorful platformer level.",
+    icon: Gamepad2,
+    color: "from-sky-500 to-emerald-500",
+    href: "/games/platformer",
     difficulty: "Medium",
     replay: "⭐⭐⭐⭐⭐",
   },
