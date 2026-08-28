@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Zap, Puzzle, Brain, Clock } from "lucide-react";
+import { Zap, Puzzle, Brain, Clock, Rocket } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -65,6 +65,15 @@ const games = [
     color: "from-purple-500 to-pink-500",
     href: "/games/word",
     difficulty: "Medium",
+    replay: "⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Sky Hopper",
+    description: "A fast jump and run game. Tap to hop over obstacles, grab coins, and chase a new high score.",
+    icon: Rocket,
+    color: "from-emerald-500 to-teal-500",
+    href: "/games/jump",
+    difficulty: "Easy",
     replay: "⭐⭐⭐⭐⭐",
   },
 ];
