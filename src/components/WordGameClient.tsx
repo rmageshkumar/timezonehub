@@ -100,8 +100,8 @@ function getDateKey(): string {
 
 function getLetterStates(guess: string, target: string): LetterState[] {
   const states: LetterState[] = [];
-  const targetChars = target.split("");
-  const guessChars = guess.split("");
+  const targetChars: (string | null)[] = target.split("");
+  const guessChars: (string | null)[] = guess.split("");
 
   // First pass: mark correct letters
   for (let i = 0; i < WORD_LENGTH; i++) {
