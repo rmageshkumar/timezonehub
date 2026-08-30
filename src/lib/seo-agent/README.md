@@ -1,21 +1,22 @@
 # ClockHive SEO Agent
 
-Phase 1 provides a deterministic, read-only SEO opportunity engine.
+Phase 1 connects the deterministic opportunity analyzer to Google Search Console Search Analytics.
 
-## Goals
+## Runtime configuration
 
-- Identify queries in the ranking striking-distance range (positions 4–20).
-- Identify high-impression pages/queries with weak CTR.
-- Produce explainable recommendations before any automated site changes.
+Set a Google OAuth access token at runtime as `GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN`. Do not commit credentials.
 
-## Planned integrations
+The token must be authorized for the Search Console property represented by `NEXT_PUBLIC_APP_URL` (default: `https://clockhive.cc`).
 
-1. Google Search Console Search Analytics API
-2. Google Analytics 4 Data API
-3. Technical sitemap/indexability checks
-4. Optional AI-assisted recommendations
-5. GitHub PR generation for reviewed changes
+## Example
 
-## Safety
+```ts
+import { buildSeoReport } from '@/lib/seo-agent/report';
 
-The agent must not modify production content automatically in Phase 1. Credentials belong in deployment secrets/environment variables and must never be committed to the repository.
+const report = await buildSeoReport(process.env.GOOGLE_SEARCH_CONSOLE_ACCESS_TOKEN!, {
+  startDate: '2026-08-01',
+  endDate: '2026-08-30',
+});
+```
+
+The next step is to add a protected server endpoint and scheduled job. Keep the endpoint server-only and never expose the access token to browser code.
