@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Zap, Puzzle, Brain, Clock, Rocket, Gamepad2, Orbit } from "lucide-react";
+import { Zap, Puzzle, Brain, Clock, Rocket, Gamepad2, Orbit, Car } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -74,6 +74,15 @@ const games = [
     color: "from-cyan-500 to-indigo-500",
     href: "/games/orbit-rescue",
     difficulty: "Medium",
+    replay: "⭐⭐⭐⭐⭐",
+  },
+  {
+    title: "Neon Highway Racer",
+    description: "Dodge traffic, outrun police, collect nitro, and build near-miss combos in a neon city chase.",
+    icon: Car,
+    color: "from-cyan-500 to-fuchsia-500",
+    href: "/games/neon-highway-racer",
+    difficulty: "Hard",
     replay: "⭐⭐⭐⭐⭐",
   },
   {
