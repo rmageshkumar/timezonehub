@@ -1,0 +1,27 @@
+name: ClockHive SEO Agent
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
+
+jobs:
+  seo-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch SEO report
+        env:
+          SEO_AGENT_URL: ${{ secrets.SEO_AGENT_URL }}
+          SEO_AGENT_CRON_SECRET: ${{ secrets.SEO_AGENT_CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SEO_AGENT_URL:-}" ] || [ -z "${SEO_AGENT_CRON_SECRET:-}" ]; then
+            echo "SEO agent secrets are not configured; skipping scheduled report."
+            exit 0
+          fi
+          curl --fail --silent --show-error \
+            -H "x-seo-agent-secret: ${SEO_AGENT_CRON_SECRET}" \
+            "${SEO_AGENT_URL}/api/seo/report?days=28" \
+            -o seo-report.json
+          echo "SEO report retrieved"
+          cat seo-report.json
