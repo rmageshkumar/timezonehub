@@ -42,7 +42,7 @@ export default function NeonHighwayRacerPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="flex-1 pt-5 pb-10 sm:pt-14 sm:pb-14">
+      <main className="flex-1 overflow-x-hidden pt-5 pb-10 sm:pt-14 sm:pb-14">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mb-5 text-center sm:mb-8">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">
@@ -55,7 +55,9 @@ export default function NeonHighwayRacerPage() {
             </p>
           </div>
 
-          <NeonHighwayRacerClient />
+          <div className="-mx-4 sm:mx-0">
+            <NeonHighwayRacerClient />
+          </div>
 
           <section className="mt-12 grid gap-6 text-sm leading-relaxed text-slate-600 dark:text-slate-400 md:grid-cols-3">
             <div>

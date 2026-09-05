@@ -43,7 +43,7 @@ export default function JumpGamePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-5 pb-10 sm:pt-14 sm:pb-14">
+      <main className="flex-1 overflow-x-hidden pt-5 pb-10 sm:pt-14 sm:pb-14">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-5 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">
@@ -56,7 +56,9 @@ export default function JumpGamePage() {
             </p>
           </div>
 
-          <JumpGameClient />
+          <div className="-mx-4 sm:mx-0">
+            <JumpGameClient />
+          </div>
 
           {/* SEO content */}
           <section className="mt-12 space-y-6 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">

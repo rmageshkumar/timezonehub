@@ -1,7 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw, Trophy, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Pause,
+  Play,
+  RotateCcw,
+  Trophy,
+  Maximize2,
+  Minimize2,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+} from "lucide-react";
+import { DashButton } from "@/components/DashButton";
 
 const STORAGE_KEY = "clockhive_orbit_rescue_best";
 const W = 920;
@@ -574,49 +586,24 @@ export function OrbitRescueGameClient() {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 sm:hidden">
-        <div />
-        <button
-          aria-label="Move up"
-          onPointerDown={() => setTouchKey("up", true)}
-          onPointerUp={() => setTouchKey("up", false)}
-          onPointerLeave={() => setTouchKey("up", false)}
-          onPointerCancel={() => setTouchKey("up", false)}
-          className="rounded-lg bg-cyan-600 px-4 py-3 font-bold text-white active:bg-cyan-500"
-        >
-          Up
-        </button>
-        <div />
-        <button
-          aria-label="Move left"
-          onPointerDown={() => setTouchKey("left", true)}
-          onPointerUp={() => setTouchKey("left", false)}
-          onPointerLeave={() => setTouchKey("left", false)}
-          onPointerCancel={() => setTouchKey("left", false)}
-          className="rounded-lg bg-slate-900 px-4 py-3 font-bold text-white active:bg-slate-700"
-        >
-          Left
-        </button>
-        <button
-          aria-label="Move down"
-          onPointerDown={() => setTouchKey("down", true)}
-          onPointerUp={() => setTouchKey("down", false)}
-          onPointerLeave={() => setTouchKey("down", false)}
-          onPointerCancel={() => setTouchKey("down", false)}
-          className="rounded-lg bg-slate-900 px-4 py-3 font-bold text-white active:bg-slate-700"
-        >
-          Down
-        </button>
-        <button
-          aria-label="Move right"
-          onPointerDown={() => setTouchKey("right", true)}
-          onPointerUp={() => setTouchKey("right", false)}
-          onPointerLeave={() => setTouchKey("right", false)}
-          onPointerCancel={() => setTouchKey("right", false)}
-          className="rounded-lg bg-slate-900 px-4 py-3 font-bold text-white active:bg-slate-700"
-        >
-          Right
-        </button>
+      {/* Mobile D-pad — same neon dash styling as Neon Highway Racer */}
+      <div className="sm:hidden">
+        <div className="mx-auto grid w-full max-w-sm grid-cols-3 gap-1.5 rounded-xl border border-cyan-400/30 bg-gradient-to-b from-slate-900/90 to-slate-950/95 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+          <div />
+          <DashButton label="Move up" shape="paddle" onChange={(value) => setTouchKey("up", value)}>
+            <ArrowUp className="h-6 w-6" />
+          </DashButton>
+          <div />
+          <DashButton label="Move left" shape="paddle" onChange={(value) => setTouchKey("left", value)}>
+            <ArrowLeft className="h-6 w-6" />
+          </DashButton>
+          <DashButton label="Move down" shape="paddle" onChange={(value) => setTouchKey("down", value)}>
+            <ArrowDown className="h-6 w-6" />
+          </DashButton>
+          <DashButton label="Move right" shape="paddle" onChange={(value) => setTouchKey("right", value)}>
+            <ArrowRight className="h-6 w-6" />
+          </DashButton>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">

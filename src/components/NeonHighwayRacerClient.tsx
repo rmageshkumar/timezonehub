@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import { DashButton } from "@/components/DashButton";
 import {
   ArrowDown,
   ArrowLeft,
@@ -2130,48 +2130,5 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
       <div className="mt-1 font-mono text-base font-bold text-slate-900 dark:text-slate-100">{value}</div>
     </div>
-  );
-}
-
-function DashButton({
-  label,
-  children,
-  shape,
-  onChange,
-}: {
-  label: string;
-  children: ReactNode;
-  shape: "paddle" | "pedal" | "led";
-  onChange: (value: boolean) => void;
-}) {
-  const [pressed, setPressed] = useState(false);
-  const press = (value: boolean) => {
-    setPressed(value);
-    onChange(value);
-  };
-
-  const shapeClass =
-    shape === "paddle"
-      ? "flex-[1.15] rounded-2xl border border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900"
-      : shape === "led"
-        ? "flex-1 rounded-full border-2 border-red-500/70 bg-gradient-to-b from-red-600 to-red-800 shadow-[0_0_14px_rgba(239,68,68,0.55)]"
-        : "flex-1 rounded-md border border-slate-700/80 bg-gradient-to-b from-slate-700 to-slate-900";
-
-  return (
-    <button
-      aria-label={label}
-      onPointerDown={(event) => {
-        event.currentTarget.setPointerCapture(event.pointerId);
-        press(true);
-      }}
-      onPointerUp={() => press(false)}
-      onPointerCancel={() => press(false)}
-      onPointerLeave={() => press(false)}
-      className={`touch-none ${shapeClass} flex h-16 select-none items-center justify-center font-bold text-white transition-transform ${
-        pressed ? "scale-95 brightness-125" : "shadow-lg"
-      } ${shape === "led" ? "text-sm tracking-wide" : ""}`}
-    >
-      {children}
-    </button>
   );
 }
