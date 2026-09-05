@@ -713,12 +713,12 @@ export function JumpGameClient() {
   return (
     <div
       ref={wrapRef}
-      className="relative w-full overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl select-none"
-      style={{ aspectRatio: `${W} / ${H}` }}
+      className="relative w-full overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl select-none touch-none"
+      style={{ aspectRatio: `${W} / ${H}`, WebkitTouchCallout: "none" }}
     >
       <canvas
         ref={canvasRef}
-        className="block w-full h-full"
+        className="block w-full h-full touch-none [-webkit-tap-highlight-color:transparent]"
         onPointerDown={(e) => {
           e.preventDefault();
           pressAction();
