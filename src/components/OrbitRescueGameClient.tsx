@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw, Trophy } from "lucide-react";
+import { Pause, Play, RotateCcw, Trophy, Maximize2, Minimize2 } from "lucide-react";
 
 const STORAGE_KEY = "clockhive_orbit_rescue_best";
 const W = 920;
@@ -350,6 +350,31 @@ export function OrbitRescueGameClient() {
   const [rescued, setRescued] = useState(0);
   const [best, setBest] = useState(0);
   const [newBest, setNewBest] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) {
+        void document.exitFullscreen();
+        setIsFullscreen(false);
+      } else if (el.requestFullscreen) {
+        void el
+          .requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(() => setIsFullscreen(false));
+      }
+    } catch {
+      /* Fullscreen API unavailable */
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
 
   useEffect(() => {
     try {
@@ -498,7 +523,7 @@ export function OrbitRescueGameClient() {
         </div>
 
         {phase !== "playing" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/60 p-5 text-center text-white backdrop-blur-[2px]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto bg-slate-950/60 px-3 py-2 text-center text-white backdrop-blur-[2px] sm:gap-3 sm:p-5">
             <h2 className="text-2xl font-bold sm:text-4xl">
               {phase === "ready" ? "Orbit Rescue" : phase === "lost" ? "Mission Failed" : "Paused"}
             </h2>
@@ -538,6 +563,15 @@ export function OrbitRescueGameClient() {
             </div>
           </div>
         )}
+
+        {/* Fullscreen / expand toggle — bigger play area on phones */}
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          className="absolute right-2 bottom-2 z-30 rounded-xl bg-black/40 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
+        >
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </button>
       </div>
 
       <div className="grid grid-cols-3 gap-2 sm:hidden">

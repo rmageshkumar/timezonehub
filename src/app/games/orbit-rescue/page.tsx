@@ -40,9 +40,9 @@ export default function OrbitRescuePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
-      <main className="flex-1 py-10 sm:py-14">
+      <main className="flex-1 pt-5 pb-10 sm:pt-14 sm:pb-14">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 text-center">
+          <div className="mb-5 text-center sm:mb-8">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">
               <Rocket className="mr-2 inline h-8 w-8 text-cyan-500" />
               Orbit Rescue

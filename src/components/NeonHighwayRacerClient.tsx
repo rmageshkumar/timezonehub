@@ -12,6 +12,8 @@ import {
   RotateCcw,
   Volume2,
   VolumeX,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 const W = 900;
@@ -1792,6 +1794,31 @@ export function NeonHighwayRacerClient() {
   const gameRef = useRef<GameData>(makeGame());
   const lastRef = useRef(0);
   const [snapshot, setSnapshot] = useState<Snapshot>(() => makeSnapshot(gameRef.current));
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) {
+        void document.exitFullscreen();
+        setIsFullscreen(false);
+      } else if (el.requestFullscreen) {
+        void el
+          .requestFullscreen()
+          .then(() => setIsFullscreen(true))
+          .catch(() => setIsFullscreen(false));
+      }
+    } catch {
+      /* Fullscreen API unavailable */
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
 
   useEffect(() => {
     try {
@@ -1950,28 +1977,6 @@ export function NeonHighwayRacerClient() {
             </div>
           </div>
 
-          {snapshot.phase === "playing" && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-2 sm:hidden">
-              <div className="pointer-events-auto flex items-stretch gap-1.5 rounded-xl border border-cyan-400/30 bg-gradient-to-b from-slate-900/90 to-slate-950/95 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
-                <DashButton label="Left" shape="paddle" onChange={(value) => setTouchKey("left", value)}>
-                  <ArrowLeft className="h-6 w-6" />
-                </DashButton>
-                <DashButton label="Brake" shape="pedal" onChange={(value) => setTouchKey("down", value)}>
-                  <ArrowDown className="h-5 w-5" />
-                </DashButton>
-                <DashButton label="Gas" shape="pedal" onChange={(value) => setTouchKey("up", value)}>
-                  <ArrowUp className="h-5 w-5" />
-                </DashButton>
-                <DashButton label="Nitro" shape="led" onChange={(value) => setTouchKey("nitro", value)}>
-                  N
-                </DashButton>
-                <DashButton label="Right" shape="paddle" onChange={(value) => setTouchKey("right", value)}>
-                  <ArrowRight className="h-6 w-6" />
-                </DashButton>
-              </div>
-            </div>
-          )}
-
           {snapshot.phase === "countdown" && (
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-950/45 via-transparent to-slate-950/55 text-center text-white">
               <div
@@ -1989,7 +1994,7 @@ export function NeonHighwayRacerClient() {
           )}
 
           {["ready", "paused", "upgrade", "gameover"].includes(snapshot.phase) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/68 p-5 text-center text-white backdrop-blur-[2px]">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto bg-slate-950/68 px-3 py-2 text-center text-white backdrop-blur-[2px] sm:gap-4 sm:p-5">
               <h2 className="text-3xl font-black sm:text-5xl">{overlayTitle}</h2>
               {snapshot.phase === "upgrade" ? (
                 <div className="grid w-full max-w-2xl gap-3 sm:grid-cols-3">
@@ -2023,6 +2028,29 @@ export function NeonHighwayRacerClient() {
             </div>
           )}
         </div>
+
+        {/* Mobile touch controls live below the canvas so they never cover the car */}
+        {snapshot.phase === "playing" && (
+          <div className="sm:hidden">
+            <div className="flex items-stretch gap-1.5 rounded-xl border border-cyan-400/30 bg-gradient-to-b from-slate-900/90 to-slate-950/95 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur">
+              <DashButton label="Left" shape="paddle" onChange={(value) => setTouchKey("left", value)}>
+                <ArrowLeft className="h-6 w-6" />
+              </DashButton>
+              <DashButton label="Brake" shape="pedal" onChange={(value) => setTouchKey("down", value)}>
+                <ArrowDown className="h-5 w-5" />
+              </DashButton>
+              <DashButton label="Gas" shape="pedal" onChange={(value) => setTouchKey("up", value)}>
+                <ArrowUp className="h-5 w-5" />
+              </DashButton>
+              <DashButton label="Nitro" shape="led" onChange={(value) => setTouchKey("nitro", value)}>
+                N
+              </DashButton>
+              <DashButton label="Right" shape="paddle" onChange={(value) => setTouchKey("right", value)}>
+                <ArrowRight className="h-6 w-6" />
+              </DashButton>
+            </div>
+          </div>
+        )}
 
         <aside className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
           <div className="grid grid-cols-2 gap-3 text-sm">
@@ -2058,7 +2086,7 @@ export function NeonHighwayRacerClient() {
           <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-900">Space / Shift nitro</span>
           <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-900">P pause</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <button
             onClick={toggleMute}
             className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 font-semibold text-slate-800 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100"
@@ -2080,6 +2108,14 @@ export function NeonHighwayRacerClient() {
           >
             <RotateCcw className="h-4 w-4" />
             Restart
+          </button>
+          <button
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-2 font-semibold text-slate-800 transition hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-100"
+          >
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            {isFullscreen ? "Exit" : "Fullscreen"}
           </button>
         </div>
       </div>

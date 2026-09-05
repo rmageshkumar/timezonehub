@@ -43,9 +43,9 @@ export default function JumpGamePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 py-10 sm:py-14">
+      <main className="flex-1 pt-5 pb-10 sm:pt-14 sm:pb-14">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-5 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">
               <Rocket className="w-8 h-8 inline mr-2 text-emerald-500" />
               Sky Hopper

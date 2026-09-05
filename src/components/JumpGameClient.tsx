@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import {
   RotateCcw,
   Pause,
@@ -8,6 +9,8 @@ import {
   Share2,
   Trophy,
   MousePointerClick,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -710,20 +713,54 @@ export function JumpGameClient() {
     }
   }, [score, coins]);
 
+  // Any tap on the play surface acts as the primary action: start on the title
+  // screen, jump while running, resume when paused, restart on game over. Only
+  // real controls (buttons/links) keep their own handlers.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const handleSurfaceDown = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      const t = e.target as HTMLElement | null;
+      if (t && typeof t.closest === "function" && t.closest("button, a, input, textarea, select")) return;
+      e.preventDefault();
+      pressAction();
+    },
+    [pressAction]
+  );
+
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) {
+        void document.exitFullscreen();
+        setIsFullscreen(false);
+      } else if (el.requestFullscreen) {
+        void el.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => setIsFullscreen(false));
+      }
+    } catch {
+      /* Fullscreen API unavailable */
+    }
+  }, []);
+
+  const onFsChange = useCallback(() => {
+    setIsFullscreen(!!document.fullscreenElement);
+  }, []);
+  useEffect(() => {
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, [onFsChange]);
+
   return (
     <div
       ref={wrapRef}
       className="relative w-full overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-700 shadow-xl select-none touch-none"
       style={{ aspectRatio: `${W} / ${H}`, WebkitTouchCallout: "none" }}
+      onPointerDown={handleSurfaceDown}
+      onContextMenu={(e) => e.preventDefault()}
     >
       <canvas
         ref={canvasRef}
         className="block w-full h-full touch-none [-webkit-tap-highlight-color:transparent]"
-        onPointerDown={(e) => {
-          e.preventDefault();
-          pressAction();
-        }}
-        onContextMenu={(e) => e.preventDefault()}
       />
 
       {/* HUD */}
@@ -750,31 +787,30 @@ export function JumpGameClient() {
         </div>
       )}
 
-      {/* Ready overlay */}
+      {/* Ready overlay — compact so the Start button always fits a short phone canvas */}
       {phase === "ready" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/40 backdrop-blur-[2px] p-6 text-center">
-          <div className="text-5xl">🦘</div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow">
-            Sky Hopper
-          </h2>
-          <p className="text-white/90 text-sm sm:text-base max-w-sm">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto bg-slate-900/40 px-3 py-2 text-center backdrop-blur-[2px] sm:gap-3 sm:p-6">
+          <div className="text-3xl sm:text-5xl">🦘</div>
+          <h2 className="text-lg font-bold text-white drop-shadow sm:text-3xl">Sky Hopper</h2>
+          <p className="hidden max-w-sm text-xs text-white/90 sm:block sm:text-base">
             Hop over obstacles and grab coins. Speed up as you go!
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-white/85">
+          <button
+            onClick={startGame}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-base font-bold text-white shadow-lg transition-colors hover:bg-emerald-600 sm:text-lg"
+          >
+            <Play className="h-5 w-5" />
+            Start
+          </button>
+          <p className="text-[10px] text-white/80 sm:hidden">Tap anywhere to jump · P to pause</p>
+          <div className="hidden flex-wrap items-center justify-center gap-2 text-xs text-white/85 sm:flex">
             <span className="rounded-full bg-white/15 px-3 py-1">Space / ↑ to jump</span>
             <span className="rounded-full bg-white/15 px-3 py-1">Tap to jump</span>
             <span className="rounded-full bg-white/15 px-3 py-1">P to pause</span>
           </div>
-          <button
-            onClick={startGame}
-            className="mt-2 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow-lg transition-colors"
-          >
-            <Play className="w-5 h-5" />
-            Start
-          </button>
           {best > 0 && (
-            <p className="flex items-center gap-1 text-amber-200 text-sm">
-              <Trophy className="w-4 h-4" /> Personal best: {best}
+            <p className="flex items-center gap-1 text-xs text-amber-200 sm:text-sm">
+              <Trophy className="h-4 w-4" /> Personal best: {best}
             </p>
           )}
         </div>
@@ -782,67 +818,76 @@ export function JumpGameClient() {
 
       {/* Paused overlay */}
       {phase === "paused" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/50 backdrop-blur-[2px] p-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Paused</h2>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto bg-slate-900/50 px-3 py-2 text-center backdrop-blur-[2px] sm:gap-3 sm:p-6">
+          <h2 className="text-xl font-bold text-white sm:text-3xl">Paused</h2>
           <button
             onClick={resumeGame}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow-lg transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-base font-bold text-white shadow-lg transition-colors hover:bg-emerald-600 sm:px-6 sm:py-3 sm:text-lg"
           >
-            <Play className="w-5 h-5" />
+            <Play className="h-5 w-5" />
             Resume
           </button>
           <button
             onClick={startGame}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25"
           >
             <RotateCcw className="w-4 h-4" /> Restart
           </button>
         </div>
       )}
 
-      {/* Game over overlay */}
+      {/* Game over overlay — compact so Play again stays reachable on a small canvas */}
       {phase === "gameover" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-900/60 backdrop-blur-[2px] p-6 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Game Over!</h2>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto bg-slate-900/60 px-3 py-2 text-center backdrop-blur-[2px] sm:gap-3 sm:p-6">
+          <h2 className="text-xl font-bold text-white sm:text-3xl">Game Over!</h2>
           {newBest && (
-            <p className="rounded-full bg-amber-400/90 text-amber-950 px-4 py-1 text-sm font-bold animate-pulse">
+            <p className="animate-pulse rounded-full bg-amber-400/90 px-4 py-1 text-xs font-bold text-amber-950 sm:text-sm">
               🎉 New personal best!
             </p>
           )}
-          <div className="flex items-center gap-6 mt-1">
+          <div className="flex items-center justify-center gap-4 sm:gap-6">
             <div>
-              <div className="text-xs uppercase tracking-wide text-white/70">Score</div>
-              <div className="text-3xl sm:text-4xl font-bold font-mono text-white">{score}</div>
+              <div className="text-[10px] uppercase tracking-wide text-white/70 sm:text-xs">Score</div>
+              <div className="text-2xl font-bold font-mono text-white sm:text-4xl">{score}</div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-white/70">Coins</div>
-              <div className="text-3xl sm:text-4xl font-bold font-mono text-amber-300">🪙 {coins}</div>
+              <div className="text-[10px] uppercase tracking-wide text-white/70 sm:text-xs">Coins</div>
+              <div className="text-2xl font-bold font-mono text-amber-300 sm:text-4xl">🪙 {coins}</div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-white/70">Best</div>
-              <div className="text-3xl sm:text-4xl font-bold font-mono text-white">{best}</div>
+              <div className="text-[10px] uppercase tracking-wide text-white/70 sm:text-xs">Best</div>
+              <div className="text-2xl font-bold font-mono text-white sm:text-4xl">{best}</div>
             </div>
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:mt-2 sm:gap-3">
             <button
               onClick={startGame}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 font-bold text-white shadow-lg transition-colors hover:bg-emerald-600 sm:px-6 sm:py-3"
             >
               <RotateCcw className="w-5 h-5" />
               Play again
             </button>
             <button
               onClick={share}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-white/25 sm:px-5 sm:py-3"
             >
               <Share2 className="w-4 h-4" /> Share
             </button>
           </div>
-          <p className="text-white/70 text-xs flex items-center gap-1 mt-1">
+          <p className="flex items-center gap-1 text-[10px] text-white/70 sm:mt-1 sm:text-xs">
             <MousePointerClick className="w-3 h-3" /> Press Space or tap to play again
           </p>
         </div>
       )}
+
+      {/* Fullscreen / expand toggle — handy on phones for a bigger play area */}
+      <button
+        onClick={toggleFullscreen}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+        className="absolute right-2 bottom-2 z-30 rounded-xl bg-black/30 backdrop-blur-sm p-2 text-white hover:bg-black/45 transition-colors"
+      >
+        {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+      </button>
     </div>
   );
 }

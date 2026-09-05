@@ -124,11 +124,26 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5">
-                <Link href="/auth/login" className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                {/* Text auth links fit comfortably from sm up; on very small
+                    phones an icon keeps the nav from overflowing sideways. */}
+                <Link
+                  href="/auth/login"
+                  className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
                   Sign In
                 </Link>
-                <Link href="/auth/register" className="btn-primary text-sm px-4 py-1.5">
+                <Link
+                  href="/auth/login"
+                  aria-label="Sign in"
+                  className="sm:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <User className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="hidden sm:inline-flex btn-primary text-sm px-4 py-1.5"
+                >
                   Sign Up
                 </Link>
               </div>
